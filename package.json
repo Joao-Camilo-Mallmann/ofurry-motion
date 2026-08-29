@@ -5,6 +5,7 @@
   "private": true,
   "scripts": {
     "studio": "remotion studio src/index.ts",
+    "ui": "bun run scripts/dev-ui.ts",
     "render": "remotion render src/index.ts OFurryComposition out/video.mp4",
     "render:sample": "remotion render src/index.ts OFurryComposition out/sample.mp4",
     "render:coe": "remotion render src/index.ts COEComposition out/coe-intro.mp4",
