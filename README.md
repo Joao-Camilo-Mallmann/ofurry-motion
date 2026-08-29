@@ -1,63 +1,63 @@
-# 🎬 Motion para o Canal do OFurry (`ofurry-motion`)
+# 🎬 OFurry Motion Engine (`ofurry-motion`)
 
-Motor de geração programática de **Motion Design Editorial** para o canal **OFurry** no YouTube, desenvolvido em **Remotion**, **React** e **TypeScript**, otimizado para execução com **Bun**.
+Programmatic **Editorial Motion Design Engine** for the **OFurry** YouTube channel, built with **Remotion**, **React**, and **TypeScript**, optimized for ultra-fast execution with **Bun**.
 
-Transforma trechos de roteiro de vídeo narrado em animações de alto impacto, prontas para sobreposição direta sobre filmagens reais e B-rolls em editores como **Adobe Premiere Pro**, **DaVinci Resolve** e **CapCut** através de **canal Alpha (transparência real em ProRes 4444 e WebM)**.
+Transforms narrated video script excerpts into high-impact animations ready to be overlaid directly on real footage and B-rolls in video editors such as **Adobe Premiere Pro**, **DaVinci Resolve**, and **CapCut** using **native Alpha Channel transparency (ProRes 4444 and WebM)**.
 
 ---
 
-## 🚀 Como Gerar Animações de Motion para o Canal OFurry
+## 🚀 How to Generate Motion Animations for the OFurry Channel
 
-O fluxo de trabalho foi projetado para ser rápido, modular e focado em mini-vídeos independentes por cena/fala.
+The workflow is designed to be fast, modular, and focused on independent mini-videos per scene/narration line.
 
 ```
                   ┌────────────────────────┐
-                  │ 1. Trecho de Fala do   │
-                  │        Roteiro         │
+                  │  1. Script Narration   │
+                  │        Excerpt         │
                   └───────────┬────────────┘
                               │
                               ▼
                   ┌────────────────────────┐
-                  │ 2. Diretor IA gera     │
-                  │    JSON SceneSpec      │
-                  │ (6 Regras de Ouro)     │
+                  │ 2. AI Director outputs │
+                  │    SceneSpec JSON      │
+                  │  (6 Golden Rules)      │
                   └───────────┬────────────┘
                               │
                               ▼
                   ┌────────────────────────┐
-                  │ 3. Preview no Studio   │
-                  │  (bun run studio)      │
+                  │ 3. Preview in Studio   │
+                  │   (bun run studio)     │
                   └───────────┬────────────┘
                               │
                               ▼
                   ┌────────────────────────┐
-                  │ 4. Exportação com      │
-                  │    Alpha (ProRes/WebM) │
-                  │ (bun run render:scenes)│
+                  │ 4. Alpha Export        │
+                  │   (ProRes 4444 / WebM) │
+                  │(bun run render:scenes) │
                   └───────────┬────────────┘
                               │
                               ▼
                   ┌────────────────────────┐
-                  │ 5. Arrastar para a     │
-                  │    timeline do Editor  │
+                  │ 5. Drag into Video     │
+                  │    Editor Timeline     │
                   │ (Premiere / DaVinci)   │
                   └────────────────────────┘
 ```
 
 ---
 
-### 📋 Passo a Passo
+### 📋 Step-by-Step Guide
 
-### 1. Definir a Cena (`SceneSpec`)
-Crie ou edite um arquivo de roteiro (como `example/coe-script.ts`). Cada cena representa um gancho visual de uma fala específica:
+### 1. Define the Scene (`SceneSpec`)
+Create or edit a script file (e.g., `example/coe-script.ts`). Each scene represents an anchor visual hook for a specific narration point:
 
 ```typescript
 import { SceneSpec } from '../src/director/schema';
 
-export const minhasCenas: SceneSpec[] = [
+export const myScenes: SceneSpec[] = [
   {
-    id: 'cena-01-alerta',
-    durationInFrames: 120, // 4 segundos a 30fps
+    id: 'scene-01-alert',
+    durationInFrames: 120, // 4 seconds at 30fps
     layout: 'centered-hero',
     choreography: {
       entryDirection: 'bottom-up',
@@ -67,10 +67,10 @@ export const minhasCenas: SceneSpec[] = [
     elements: [
       {
         type: 'text',
-        text: 'CUIDADO COM O COE',
-        subtitle: 'O produto mais empurrado do mercado financeiro',
+        text: 'BEWARE OF COE',
+        subtitle: 'The most pushed product in the financial market',
         variant: 'hero',
-        highlightWords: ['COE'], // Ganha tarja sólida neon laranja (#FF9900)
+        highlightWords: ['COE'], // Solid neon orange highlight block (#FF9900)
         font: 'archivo',
         glow: true,
       },
@@ -87,122 +87,122 @@ export const minhasCenas: SceneSpec[] = [
 
 ---
 
-### 2. As 6 Regras de Ouro do Diretor de Motion Design
+### 2. The 6 Golden Rules of the Motion Design Director
 
-Ao criar ou instruir uma IA a gerar cenas, siga estritamente estas diretrizes editoriais:
+When authoring or prompting an AI to generate scenes, strictly adhere to these editorial guidelines:
 
-| # | Regra | Diretriz |
+| # | Rule | Directive |
 |---|---|---|
-| 🎯 | **1. Texto Mínimo (2-4 Palavras)** | **NUNCA** coloque parágrafos inteiros. Extraia apenas 2 a 4 palavras-chave de âncora ou métricas numéricas. A voz já narra a história; a tela traz autoridade visual. |
-| 📏 | **2. Escala Monumental** | Títulos Hero de 120px–150px (ocupando 70-90% da tela) e números de 180px–220px. Elementos gigantes dominam os primeiros 3 segundos. |
-| 🎨 | **3. Tipografia por Função** | • `Archivo Black` / `Bebas Neue` para títulos de impacto<br>• `Syne` para títulos conceituais modernos<br>• `Space Grotesk` para números, métricas e dados técnicos<br>• `Plus Jakarta Sans` para subtítulos e labels limpos |
-| 🖼️ | **4. Anti-"Cara de IA"** | Tarjas sólidas neon (`#FF9900` com texto `#000000`), cantos de enquadramento técnico (L-corners), miras de precisão e zero constelações de bolinhas genéricas. |
-| 🎬 | **5. Fundo Transparente (Canal Alpha)** | Exportação nativa em **ProRes 4444 (`.mov`)** ou **WebM** para sobrepor direto sobre filmagens reais sem necessidade de chroma-key. |
-| ⚡ | **6. Física Punch & Hold** | Entrada ultra-rápida e amortecida (frames 0-15), retenção firme para leitura (Hold) e micro-drift senoidal contínuo (±2px) contra sensação de tela congelada. |
+| 🎯 | **1. Minimal Text (2-4 Words)** | **NEVER** put full paragraphs on screen. Extract only 2 to 4 anchor keywords or numerical metrics. The voice delivers the story; the screen provides visual authority. |
+| 📏 | **2. Monumental Scale** | Hero titles at 120px–150px (occupying 70-90% width) and numbers at 180px–220px. Massive elements command attention in the first 3 seconds. |
+| 🎨 | **3. Typography by Role** | • `Archivo Black` / `Bebas Neue` for high-impact hook titles<br>• `Syne` for modern conceptual titles<br>• `Space Grotesk` for numbers, metrics, and technical data<br>• `Plus Jakarta Sans` for clean subtitles and labels |
+| 🖼️ | **4. Anti-"AI Template" Aesthetics** | High-contrast solid neon blocks (`#FF9900` with `#000000` text), technical framing L-corners, precision crosshairs, and zero generic floating blur clouds. |
+| 🎬 | **5. True Alpha Channel** | Native transparent background rendering in **ProRes 4444 (`.mov`)** or **WebM** for seamless drag-and-drop overlay onto live footage without chroma keying. |
+| ⚡ | **6. Punch & Hold Physics** | Snappy damped spring entry (frames 0-15), solid hold for effortless reading, and continuous subtle sinusoidal micro-drift (±2px) to prevent frozen frames. |
 
 ---
 
-### 3. Visualizar no Remotion Studio
+### 3. Preview in Remotion Studio
 
-Abra o estúdio visual interativo com hot-reload:
+Launch the interactive visual studio with hot-reload:
 
 ```bash
 bun run studio
 ```
 
-O estúdio abrirá no navegador (`http://localhost:3000`), permitindo navegar pela timeline, inspecionar cada cena individualmente (`COE-Cena-1`, etc.) e verificar o alinhamento com canal Alpha transparente.
+The studio opens in your browser (`http://localhost:3000`), allowing you to scrub the timeline, inspect individual scene compositions (`COE-Cena-1`, etc.), and verify transparency overlays in real time.
 
 ---
 
-### 4. Exportar os Mini-Vídeos por Cena
+### 4. Export Mini-Videos per Scene
 
-Escolha o formato ideal para seu fluxo de edição:
+Choose the format tailored for your post-production workflow:
 
-#### 🎥 Exportar todas as cenas com Alpha (ProRes 4444 `.mov` - Recomendado para Premiere & DaVinci):
+#### 🎥 Export all scenes with Alpha (ProRes 4444 `.mov` - Recommended for Premiere & DaVinci):
 ```bash
 bun run render:scenes
 ```
-> Gera arquivos `.mov` com canal Alpha na pasta `out/scenes/` (ex: `COE-Cena-1-cena-01-alerta-coe.mov`).
+> Outputs `.mov` files with Alpha channel to `out/scenes/` (e.g., `COE-Cena-1-cena-01-alerta-coe.mov`).
 
-#### 🌐 Exportar todas as cenas em WebM com Alpha (Mais leve):
+#### 🌐 Export all scenes in WebM with Alpha (Lightweight):
 ```bash
 bun run render:scenes:webm
 ```
 
-#### ⚡ Renderizar apenas uma cena específica (em ~2 segundos):
+#### ⚡ Render a specific scene individually (~2s):
 ```bash
-# Renderizar apenas a cena 1
+# Render scene index 1
 bun run render:scene -- --id=1
 
-# Renderizar cena por ID em ProRes
+# Render specific scene ID in ProRes 4444
 bun run render:scene -- --id=cena-01-alerta-coe --format=prores
 ```
 
-#### 🎞️ Exportar vídeo completo unificado em MP4:
+#### 🎞️ Export unified full-length video in MP4:
 ```bash
 bun run render:coe
-# ou
+# or
 bun run render:full
 ```
 
 ---
 
-## 🧱 Catálogo de Primitivas Visuais (`src/primitives/`)
+## 🧱 Visual Primitives Catalog (`src/primitives/`)
 
-| Primitiva | Props Principais | Exemplo de Uso |
+| Primitive | Key Props | Example Usage |
 |---|---|---|
-| **`TextReveal`** | `text`, `subtitle`, `variant` ('hero'\|'title'\|'badge'), `highlightWords`, `font` ('archivo'\|'syne'\|'bebas'\|'jakarta') | Palavras de âncora com tarja sólida neon e stagger |
-| **`AnimatedNumber`** | `value`, `startValue`, `prefix` ('R$ '), `suffix` ('%'), `label`, `variant` ('hero'\|'card'\|'badge') | Contadores gigantes (180-220px) em `Space Grotesk` monospaced |
-| **`Icon`** | `name` (Lucide), `size` (72-120px), `showRing`, `accentColor` | Linha artística com anel de choque e drop-shadow neon |
-| **`ConnectedNodes`** | `nodes`, `connections`, `width` (920px), `drawDuration` | Malha de conexão entre agentes, intermediários e bancos |
-| **`DynamicChart`** | `data`, `type` ('line'\|'bar'), `highlightLast`, `showGrid` | Gráfico de linha/barra com traçado ao vivo em 80% da tela |
-| **`ParticleField`** | `showGrid`, `showCorners`, `showCrosshairs`, `transparent` | Framing técnico editorial com miras e cantos de precisão |
+| **`TextReveal`** | `text`, `subtitle`, `variant` ('hero'\|'title'\|'badge'), `highlightWords`, `font` ('archivo'\|'syne'\|'bebas'\|'jakarta') | Anchor keywords with solid neon blocks and staggered entry |
+| **`AnimatedNumber`** | `value`, `startValue`, `prefix` ('$ '), `suffix` ('%'), `label`, `variant` ('hero'\|'card'\|'badge') | Monumental counters (180-220px) with `Space Grotesk` tabular alignment |
+| **`Icon`** | `name` (Lucide), `size` (72-120px), `showRing`, `accentColor` | Flat vector line-art with expanding laser ring and neon drop shadow |
+| **`ConnectedNodes`** | `nodes`, `connections`, `width` (920px), `drawDuration` | Tech network graph connecting brokers, banks, and users |
+| **`DynamicChart`** | `data`, `type` ('line'\|'bar'), `highlightLast`, `showGrid` | Dynamic live-drawn line/bar trend curves across 80% screen width |
+| **`ParticleField`** | `showGrid`, `showCorners`, `showCrosshairs`, `transparent` | Clean editorial framing guides, corner brackets, and alpha grid |
 
 ---
 
-## 📁 Estrutura do Projeto
+## 📁 Project Structure
 
 ```
 ofurry-motion/
 ├── src/
 │   ├── composition/
-│   │   └── SceneComposer.tsx     # Orquestrador de cenas com suporte a Alpha
+│   │   └── SceneComposer.tsx     # Scene layout orchestrator with Alpha support
 │   ├── director/
-│   │   ├── schema.ts             # Schemas Zod e tipos TypeScript
-│   │   ├── prompt.ts             # System prompt do Diretor IA
-│   │   └── validator.ts          # Validação e fallback automático
+│   │   ├── schema.ts             # Zod Schemas & TypeScript types
+│   │   ├── prompt.ts             # AI Director system prompt
+│   │   └── validator.ts          # Validation & safe fallbacks
 │   ├── primitives/
-│   │   ├── TextReveal.tsx        # Tipografia monumental + tarjas sólidas
-│   │   ├── AnimatedNumber.tsx    # Contadores em Space Grotesk tabular
-│   │   ├── Icon.tsx              # Ícones com anel laser e alpha
-│   │   ├── ConnectedNodes.tsx    # Malha SVG ampliada (80% tela)
-│   │   ├── DynamicChart.tsx      # Gráficos dinâmicos de tendência
-│   │   ├── ParticleField.tsx     # Miras técnicas e framing editorial
-│   │   └── index.ts              # Exportação central de primitivas
+│   │   ├── TextReveal.tsx        # Monumental typography + solid badges
+│   │   ├── AnimatedNumber.tsx    # Tabular monospaced counters
+│   │   ├── Icon.tsx              # Vector icons with laser ring & alpha
+│   │   ├── ConnectedNodes.tsx    # Expanded SVG network (80% width)
+│   │   ├── DynamicChart.tsx      # Dynamic trend charts
+│   │   ├── ParticleField.tsx     # Technical crosshairs & framing guides
+│   │   └── index.ts              # Central primitives export
 │   ├── theme/
-│   │   ├── ofurry.ts             # Multi-famílias, tokens monumentais e alpha
-│   │   └── motion.ts             # Física de springs, micro-drift e drawing
-│   ├── Root.tsx                  # Fontes locais e composições com Alpha
-│   └── index.ts                  # Entrypoint Remotion
+│   │   ├── ofurry.ts             # Multi-family fonts, monumental tokens & alpha
+│   │   └── motion.ts             # Spring physics, micro-drift & live drawing
+│   ├── Root.tsx                  # Local fonts & alpha compositions
+│   └── index.ts                  # Remotion entrypoint
 ├── scripts/
-│   └── render-scenes.ts          # Script orquestrador de exportação em lote
+│   └── render-scenes.ts          # Batch scene export orchestrator
 ├── example/
-│   ├── coe-script.ts             # Roteiro real do canal (Vídeo do COE)
-│   └── sample-script.ts          # Roteiro de demonstração
-├── docs/                         # ADRs e documentação técnica
-├── openspec/                     # Especificações OpenSpec
+│   ├── coe-script.ts             # Production channel script (COE Video)
+│   └── sample-script.ts          # Demo script
+├── docs/                         # ADRs and technical documentation
+├── openspec/                     # OpenSpec change artifacts & specifications
 └── package.json
 ```
 
 ---
 
-## 🛠️ Resumo de Comandos Bun
+## 🛠️ Bun Commands Reference
 
-| Comando Bun | Finalidade |
+| Bun Command | Description |
 |---|---|
-| `bun run studio` | Abre o Remotion Studio interativo |
-| `bun run render:scenes` | Exporta todas as cenas em **ProRes 4444 com Alpha** (`.mov`) |
-| `bun run render:scenes:webm` | Exporta todas as cenas em **WebM com Alpha** (`.webm`) |
-| `bun run render:scene -- --id=X` | Exporta rapidamente uma cena específica |
-| `bun run render:coe` | Renderiza a sequência completa do vídeo do COE (`.mp4`) |
-| `bun run build` | Checa integridade de tipos com TypeScript (`tsc --noEmit`) |
+| `bun run studio` | Launches interactive Remotion Studio |
+| `bun run render:scenes` | Exports all scenes in **ProRes 4444 with Alpha** (`.mov`) |
+| `bun run render:scenes:webm` | Exports all scenes in **WebM with Alpha** (`.webm`) |
+| `bun run render:scene -- --id=X` | Quickly renders a single specific scene |
+| `bun run render:coe` | Renders the complete unified COE video sequence (`.mp4`) |
+| `bun run build` | Verifies TypeScript type integrity (`tsc --noEmit`) |
