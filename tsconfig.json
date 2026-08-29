@@ -14,9 +14,8 @@
     "moduleDetection": "force",
     "isolatedModules": true,
     "jsx": "react-jsx",
-    "baseUrl": ".",
     "paths": {
-      "@/*": ["src/*"]
+      "@/*": ["./src/*"]
     }
   },
   "include": ["src", "example", "remotion.config.ts"]

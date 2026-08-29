@@ -30,32 +30,35 @@ export const Icon: React.FC<IconProps> = ({
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
 
-  // 1. Ambient layer: Continuous floating and gentle breathing
+  // 1. Ambient layer: Continuous floating and gentle breathing (zero frozen frames)
   const ambient = getAmbientDrift(frame, {
     amplitudeY: 3.5,
     amplitudeX: 1.5,
-    amplitudeRotate: 0.8,
+    amplitudeRotate: 0.6,
     periodFrames: 60,
   });
 
-  // 2. Primary layer: Scale entrance with bouncy spring
+  // 2. Primary layer: Scale entrance with snappy bouncy spring
   const entryProgress = getSpringProgress(frame, fps, delay, MotionPresets.bouncy);
   const scale = interpolate(entryProgress, [0, 1], [0.2, 1]);
-  const opacity = interpolate(entryProgress, [0, 0.4, 1], [0, 0.8, 1]);
+  const opacity = interpolate(entryProgress, [0, 0.4, 1], [0, 0.9, 1]);
 
-  // 3. Secondary layer: Expanding shockwave accent ring
-  const ringProgress = interpolate(frame, [delay + 2, delay + 25], [0, 1], {
+  // 3. Secondary layer: Expanding shockwave laser accent ring
+  const ringProgress = interpolate(frame, [delay + 2, delay + 28], [0, 1], {
     extrapolateLeft: 'clamp',
     extrapolateRight: 'clamp',
   });
-  const ringScale = interpolate(ringProgress, [0, 1], [0.8, 1.6]);
-  const ringOpacity = interpolate(ringProgress, [0, 0.3, 1], [0, 0.7, 0]);
+  const ringScale = interpolate(ringProgress, [0, 1], [0.75, 1.7]);
+  const ringOpacity = interpolate(ringProgress, [0, 0.3, 1], [0, 0.8, 0]);
 
   // Continuous glow pulse
-  const glowIntensity = getGlowPulse(frame, 50, 0.4, 0.8);
+  const glowIntensity = getGlowPulse(frame, 50, 0.4, 0.85);
 
   // Dynamic Lucide Icon Component lookup
-  const iconsMap = LucideIcons as unknown as Record<string, React.ComponentType<{ size?: number; color?: string; strokeWidth?: number; style?: React.CSSProperties }>>;
+  const iconsMap = LucideIcons as unknown as Record<
+    string,
+    React.ComponentType<{ size?: number; color?: string; strokeWidth?: number; style?: React.CSSProperties }>
+  >;
   const LucideComponent = iconsMap[name] || LucideIcons.Zap;
 
   return (
@@ -67,11 +70,12 @@ export const Icon: React.FC<IconProps> = ({
         justifyContent: 'center',
         width: size * 1.5,
         height: size * 1.5,
+        backgroundColor: 'transparent',
         transform: `translate3d(${ambient.translateX}px, ${ambient.translateY}px, 0) rotate(${ambient.rotate}deg)`,
         ...style,
       }}
     >
-      {/* Secondary: Expanding Pulse Ring */}
+      {/* Secondary: Expanding Pulse Ring (Alpha friendly) */}
       {showRing && ringProgress > 0 && ringProgress < 1 && (
         <div
           style={{
@@ -80,7 +84,7 @@ export const Icon: React.FC<IconProps> = ({
             height: size * 1.2,
             borderRadius: '50%',
             border: `2px solid ${accentColor}`,
-            boxShadow: `0 0 15px ${accentColor}`,
+            boxShadow: `0 0 20px ${accentColor}`,
             transform: `scale(${ringScale})`,
             opacity: ringOpacity,
             pointerEvents: 'none',
@@ -88,17 +92,17 @@ export const Icon: React.FC<IconProps> = ({
         />
       )}
 
-      {/* Static Background Glow Halo */}
+      {/* Static Background Glow Halo (Alpha friendly radial gradient) */}
       {showGlow && (
         <div
           style={{
             position: 'absolute',
-            width: size * 1.1,
-            height: size * 1.1,
+            width: size * 1.2,
+            height: size * 1.2,
             borderRadius: '50%',
-            background: `radial-gradient(circle, ${accentColor} 0%, transparent 70%)`,
-            opacity: glowIntensity * 0.35 * opacity,
-            filter: 'blur(16px)',
+            background: `radial-gradient(circle, ${OFurryTheme.colors.accentOrangeAlpha(0.5)} 0%, transparent 70%)`,
+            opacity: glowIntensity * 0.4 * opacity,
+            filter: 'blur(18px)',
             pointerEvents: 'none',
           }}
         />
@@ -112,7 +116,7 @@ export const Icon: React.FC<IconProps> = ({
           justifyContent: 'center',
           transform: `scale(${scale * ambient.scale})`,
           opacity,
-          filter: showGlow ? `drop-shadow(0 0 16px ${accentColor})` : undefined,
+          filter: showGlow ? `drop-shadow(0 0 20px ${OFurryTheme.colors.accentOrangeAlpha(0.7)})` : undefined,
         }}
       >
         {customSvg ? (
@@ -121,7 +125,7 @@ export const Icon: React.FC<IconProps> = ({
           <LucideComponent
             size={size}
             color={color}
-            strokeWidth={1.75}
+            strokeWidth={2.2}
             style={{ display: 'block' }}
           />
         )}
@@ -129,3 +133,4 @@ export const Icon: React.FC<IconProps> = ({
     </div>
   );
 };
+

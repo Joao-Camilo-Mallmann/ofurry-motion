@@ -1,82 +1,96 @@
-# ADR-001: Arquitetura do motor de animação `animation-to-yt` e Sistema de Motion Design
+# ADR-001: Arquitetura do motor `animation-to-yt`, Sistema de Motion Design e Diretrizes do Diretor IA
 
-**Status:** Aceito (Atualizado)  
+**Status:** Aceito (Atualizado v2.0 - Editorial & Alpha Overlays)  
 **Data:** 2026-08-29  
-**Contexto do projeto:** Canal OFurry (YouTube) — automatizar a geração de motion design para vídeos a partir de roteiro + timestamps.
+**Contexto do projeto:** Canal OFurry (YouTube) — automatizar a geração de motion design profissional a partir de roteiro + timestamps (SRT), com suporte a overlays transparentes para edição em Premiere/DaVinci/CapCut.
 
 ---
 
-## Contexto
+## 1. Contexto & Desafio
 
-O processo de produção de vídeo do canal OFurry busca automação com qualidade de estúdio: receber um roteiro com timestamps, interpretar o *conteúdo* semântico de cada fala e gerar automaticamente uma animação fluida, estética e com alto impacto visual em MP4 (16:9, 1080p ou 4K).
-
-Requisitos fundamentais refinados:
-1. **Identidade Visual Marcante**: Fundo preto sólido (`#000000`), linhas brancas flat art, acentos em laranja/amarelo néon (`#FF9900` / `#FFB800`) e tipografia **Montserrat** (pesos Bold e ExtraBold para impacto).
-2. **Sensação "Smooth" / Zero-Travado (Anti-Stuck)**: Elementos nunca ficam 100% estáticos como slides. Devem possuir desacelerações orgânicas, entradas e saídas fluidas, e micro-movimentos contínuos ("ambient drift" / "breathing" senoidal).
-3. **Construção Visual em Tempo Real ("Ao Vivo")**: Elementos e gráficos são desenhados na tela com traçados laser/glow (`strokeDashoffset`), contadores interpolados e expansões radiais, em vez de simples fades.
-4. **Filosofia de Texto Mínimo**: Nada de blocos de transcrição ou parágrafos. Máximo de 2 a 4 palavras-chave, termos de ancoragem ou métricas destacadas por cena.
-5. **Variedade & Dinamismo Anti-Repetição**: Posições e âncoras variadas a cada cena (split, radial, diagonal, comparação dual, hero central).
-6. **Diretor Inteligente com 2 Níveis de Liberdade**:
-   - *Nível 1 (Base Sólida)*: Layouts e primitivas calibradas e previsíveis.
-   - *Nível 2 (Inovação Fora da Caixa)*: Combinação livre de camadas, interpretação de metáforas visuais conceituais e suporte a overrides criativos do usuário.
+O canal OFurry produz vídeos de alta retenção no YouTube sobre finanças, tecnologia e mercados. 
+Para garantir um visual com **autoridade de estúdio de animação** e **zero aspecto de template genérico de IA**, o sistema adota regras estritas de composição, escala monumental, tipografia de motion design e exportação modular em mini-vídeos com canal Alpha (fundo transparente).
 
 ---
 
-## Decisão
+## 2. As 6 Leis do Diretor de Motion Design (Diretrizes para IAs e Desenvolvedores)
 
-### 1. Motor de Renderização: **Remotion** (React + TypeScript → Vídeo)
-- Renderização frame a frame via Chrome Headless (`npx remotion render`).
-- Uso das APIs nativas do Remotion (`interpolate`, `spring`, `useCurrentFrame`, `useVideoConfig`) para garantir interpolação matemática perfeita em 30/60 fps.
+### 🔴 Lei 1: Fundo Transparente Real (Alpha Channel) e Overlay
+- As animações são projetadas para serem **sobrepostas diretamente sobre o vídeo gravado / B-roll** no software de edição (Premiere Pro, DaVinci Resolve, CapCut).
+- O motor suporta exportação nativa em **ProRes 4444 (`.mov`)** e **WebM com Alpha**, eliminando a necessidade de chroma-key.
+- Para vídeos independentes, o fundo preto sólido (`#000000`) continua disponível.
 
-### 2. Biblioteca de Primitivas Visuais Atômicas
-As primitivas embutem as regras de motion design da skill `motion-design` e são parametrizadas por `OFurryTheme`:
+### 🔴 Lei 2: Escala Monumental (Fim dos Mini-Widgets)
+- **Títulos Hero:** `120px` a `150px`, ocupando de 70% a 90% da largura útil.
+- **Números e Métricas:** `180px` a `220px`, tornando-se o monumento visual do quadro.
+- **Zero timidez:** O elemento principal deve dominar a tela nos primeiros 3 segundos de cada fala.
 
-| Primitiva | Função | Camada Primary | Camada Secondary | Camada Ambient |
-|---|---|---|---|---|
-| `TextReveal` | Palavras-chave / Título de impacto (Montserrat) | Fade + Glide vertical/horizontal com spring | Glow sutil em laranja | Micro-drift de posição |
-| `Icon` | Ícone flat line-art vetorial | Escala com overshoot controlado | Anel de pulso / onda de choque | Rotação/flutuação senoidal (0.5°) |
-| `AnimatedNumber` | Contador numérico (moeda, %, métrica) | Interpolação rápida com antecipação | Unidade/Badge animada | Glow pulsante de destaque |
-| `ConnectedNodes` | Grafo de nós em rede tech | Nós surgindo em stagger | Linhas SVG desenhadas com glow | Conexões pulsando fluxo de dados |
-| `DynamicChart` | Gráfico de linha/barra minimalista | Linha traçada via SVG `strokeDashoffset` | Área com gradiente transparente | Ponto focal brilhante em órbita |
-| `ParticleField` | Fundo tecnológico dinâmico | Partículas com movimento contínuo | Linhas de grade sutis (5% opacidade) | Oscilação contínua global |
+### 🔴 Lei 3: Tipografia de Motion Design por Função
+Abandonamos o uso exclusivo de uma única fonte genérica. Cada elemento possui sua identidade:
+- **Títulos e Ganchos:** `Archivo Black`, `Bebas Neue` ou `Syne` (impacto, força e autoridade).
+- **Valores, Moedas e Datas:** `Space Grotesk` (estética tech/monospaced tabular de alta precisão).
+- **Subtítulos e Rótulos:** `Plus Jakarta Sans` ou `Inter` (legibilidade limpa e rápida).
 
-### 3. O "Diretor" (LLM) e o Schema `SceneSpec`
-O Diretor (Claude / Gemini) consome o texto da fala e devolve um JSON `SceneSpec` estruturado:
-```ts
-export type SceneSpec = {
-  id: string;
-  durationInFrames: number;
-  layout: 'split-left' | 'split-right' | 'radial-network' | 'bottom-heavy' | 'centered-hero' | 'dual-compare' | 'freeform';
-  choreography: {
-    entryDirection: 'bottom-up' | 'left-glide' | 'radial-burst' | 'diagonal-flow';
-    drawSpeed: 'snappy' | 'smooth-draw' | 'cascade';
-    ambientMotion: 'gentle-float' | 'pulse-glow' | 'grid-drift';
-  };
-  artDirection?: {
-    mood?: 'aggressive-alert' | 'optimistic-growth' | 'analytical-tech' | 'mysterious-reveal';
-    visualMetaphor?: string;
-    overridePrompt?: string;
-  };
-  elements: VisualElement[];
-};
+### 🔴 Lei 4: Design Editorial vs "Cara de IA"
+- **O que é proibido:** Caixinhas arredondadas idênticas, constelações de bolinhas flutuantes aleatórias e glow uniforme excessivo.
+- **O que é exigido:** Tarjas sólidas de alto contraste (texto preto sobre bloco sólido neon laranja), miras e linhas técnicas de enquadramento nos cantos, assimetria intencional e hierarquia clara.
+
+### 🔴 Lei 5: Regra do Texto Mínimo (2 a 4 Palavras)
+- A tela **não é legenda de transcrição**. O espectador já está ouvindo a voz do narrador.
+- Extraia apenas **2 a 4 palavras-chave de âncora** ou métricas numéricas por cena.
+
+### 🔴 Lei 6: Física "Punch & Hold" + Micro-Movimento (Anti-Stuck)
+- **Entrada (Punch):** Movimento rápido e enérgico nos primeiros 15–20 frames (springs amortecidos sem oscilação excessiva).
+- **Retenção (Hold):** O elemento trava firme no lugar para facilitar a leitura.
+- **Vida Contínua (Ambient):** Micro-oscilação senoidal suave (±2px) para garantir 0% de telas congeladas.
+
+---
+
+## 3. Arquitetura Técnica & Decisões
+
+```
+┌──────────────────────────────────────────────────────────────────────────────┐
+│                    ARQUITETURA DE PRODUÇÃO OFURRY                            │
+└──────────────────────────────────────────────────────────────────────────────┘
+                                       │
+         ┌─────────────────────────────┼─────────────────────────────┐
+         ▼                             ▼                             ▼
+   1. DIRETOR LLM                2. MOTOR REMOTION             3. EXPORT MODULAR
+   (Claude / Gemini)             (React + TypeScript + Bun)    (Mini-Vídeos .mov/.mp4)
+   • Parser de SRT               • Theme Tokens Expandidos     • out/scenes/01-alerta.mov
+   • Schema Zod SceneSpec        • Primitivas com Alpha        • out/scenes/02-pato.mov
+   • Fallback automático         • Fontes locais @fontsource   • Batch render via Bun
 ```
 
-### 4. Orquestrador e Pipeline de Execução
-1. `parser`: Roteiro / Timestamps / SRT → `Scene[]`.
-2. `director`: `Scene[]` + Contexto de Marca → `SceneSpec[]` (com validação Zod e fallback seguro).
-3. `composer`: Renderização via Remotion do array de cenas.
-4. `cli / script`: `npm run generate` ou `npx remotion render`.
+### 3.1. Motor de Execução e Renderização
+- **Runtime:** **Bun** (`bun install`, `bun run`) para inicialização e execução ultra-rápidas.
+- **Framework:** **Remotion** para renderização frame a frame no Chrome Headless com precisão matemática em 30 fps.
+
+### 3.2. Catálogo de Primitivas Visuais Atômicas
+
+| Primitiva | Função Principal | Fonte / Estilo | Camada de Destaque |
+|---|---|---|---|
+| `TextReveal` | Palavra-chave / Título de choque | `Archivo Black` / `Syne` | Tarja sólida neon laranja com texto invertido |
+| `AnimatedNumber` | Contador métrico / financeiro | `Space Grotesk` tabular | Monumental (180-220px) com micro-badge |
+| `Icon` | Ícone vetorial flat | Lucide Icons | Anel laser expansivo com física elástica |
+| `ConnectedNodes` | Grafo de nós em rede tech | Vetorial SVG + Labels | Traçado `strokeDashoffset` ao vivo ocupando 80% |
+| `DynamicChart` | Gráfico de linha / barras | SVG com gradiente | Traço de tendência laser com ponto focal pulsante |
+| `TechFrame` | Enquadramento e atmosfera | Linhas finas / Alpha | Miras técnicas e cantos de enquadramento editorial |
 
 ---
 
-## Consequências
+## 4. Pipeline de Exportação de Mini-Vídeos
 
-**Positivas:**
-- Elimina a sensação de vídeo estático/travado através das camadas de movimento e interpolação contínua.
-- Mantém coerência visual de estúdio (Montserrat, preto absoluto e néon) enquanto dá variedade ilimitada de cenas.
-- Texto mínimo foca a atenção do espectador nas métricas e metáforas visuais.
-- Arquitetura desacoplada e 100% testável em TypeScript.
+O sistema disponibiliza 3 fluxos de exportação:
 
-**Riscos e Mitigações:**
-- *Validação de JSON do LLM*: Uso de schema Zod com fallback automático (renderiza layout padrão caso o LLM invente parâmetros inválidos).
-- *Desempenho de Renderização*: Primitivas baseadas em SVG leve e CSS transforms acelerados por GPU no Chrome.
+1. **`bun run render:scenes`**: Renderiza **cada cena individualmente** em lote para `out/scenes/` com transparência Alpha (`.mov` ProRes 4444 ou WebM). O editor simplesmente arrasta os arquivos para a timeline sobre as falas correspondentes.
+2. **`bun run render:scene -- --id=<cena-id>`**: Renderiza apenas uma cena específica em ~2 segundos para validação ágil.
+3. **`bun run render:full`**: Renderiza a composição completa sequenciada em `.mp4` para visualização contínua.
+
+---
+
+## 5. Consequências & Benefícios
+
+- **Fluxo de Edição Fluido:** O editor não precisa mais cortar manualmente uma gravação longa de 1 minuto nem fazer máscaras/chroma-key.
+- **Design de Alta Retenção:** Aumento dramático de CTR e retenção de vídeo através de tipografia brutalista e elementos monumentais.
+- **Previsibilidade para IAs:** Qualquer LLM que consuma este documento e o `DIRECTOR_SYSTEM_PROMPT` entenderá exatamente como compor cenas que respeitem a identidade da marca.

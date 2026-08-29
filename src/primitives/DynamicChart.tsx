@@ -24,8 +24,8 @@ export interface DynamicChartProps {
 export const DynamicChart: React.FC<DynamicChartProps> = ({
   data,
   type = 'line',
-  width = 700,
-  height = 360,
+  width = 920,
+  height = 440,
   delay = 0,
   drawDuration = 35,
   accentColor = OFurryTheme.colors.accentOrange,
@@ -36,14 +36,14 @@ export const DynamicChart: React.FC<DynamicChartProps> = ({
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
 
-  // Ambient layer: smooth drift
+  // Ambient layer: smooth drift (zero frozen frame)
   const ambient = getAmbientDrift(frame, {
     amplitudeY: 2.0,
     amplitudeRotate: 0.2,
     periodFrames: 70,
   });
 
-  const padding = { top: 40, right: 40, bottom: 50, left: 50 };
+  const padding = { top: 50, right: 50, bottom: 60, left: 60 };
   const chartW = width - padding.left - padding.right;
   const chartH = height - padding.top - padding.bottom;
 
@@ -57,10 +57,9 @@ export const DynamicChart: React.FC<DynamicChartProps> = ({
     return { ...d, x, y };
   });
 
-  // Calculate SVG line path and approximate length
+  // Calculate SVG line path
   const pathD = points.reduce((acc, pt, i) => {
     if (i === 0) return `M ${pt.x} ${pt.y}`;
-    // Smooth bezier curve or direct line
     const prev = points[i - 1];
     const cpX1 = prev.x + (pt.x - prev.x) / 2;
     const cpY1 = prev.y;
@@ -73,7 +72,7 @@ export const DynamicChart: React.FC<DynamicChartProps> = ({
 
   // Path drawing interpolation
   const lineProgress = getLiveDrawProgress(frame, delay, drawDuration);
-  const totalLength = chartW * 1.5;
+  const totalLength = chartW * 1.6;
   const strokeDashoffset = totalLength * (1 - lineProgress);
 
   const glowIntensity = getGlowPulse(frame, 45, 0.4, 0.9);
@@ -84,17 +83,28 @@ export const DynamicChart: React.FC<DynamicChartProps> = ({
         position: 'relative',
         width,
         height,
-        backgroundColor: OFurryTheme.colors.surfaceElevated,
+        backgroundColor: 'rgba(15, 15, 15, 0.85)',
         borderRadius: '16px',
-        border: `1px solid ${OFurryTheme.colors.border}`,
-        boxShadow: OFurryTheme.effects.cardShadow,
+        border: `1px solid ${OFurryTheme.colors.borderLight}`,
+        boxShadow: OFurryTheme.effects.cardGlow,
         transform: `translateY(${ambient.translateY}px) rotate(${ambient.rotate}deg)`,
-        fontFamily: OFurryTheme.typography.fontFamily,
-        padding: '10px',
+        padding: '12px',
         boxSizing: 'border-box',
         ...style,
       }}
     >
+      {/* Editorial Corner Guides */}
+      <svg
+        width={width}
+        height={height}
+        style={{ position: 'absolute', top: 0, left: 0, pointerEvents: 'none', opacity: 0.5 }}
+      >
+        <path d="M 0,16 L 0,0 L 16,0" fill="none" stroke={accentColor} strokeWidth={2} />
+        <path d={`M ${width},16 L ${width},0 L ${width - 16},0`} fill="none" stroke={accentColor} strokeWidth={2} />
+        <path d={`M 0,${height - 16} L 0,${height} L 16,${height}`} fill="none" stroke={accentColor} strokeWidth={2} />
+        <path d={`M ${width},${height - 16} L ${width},${height} L ${width - 16},${height}`} fill="none" stroke={accentColor} strokeWidth={2} />
+      </svg>
+
       <svg width="100%" height="100%" viewBox={`0 0 ${width} ${height}`}>
         <defs>
           <linearGradient id="chartAreaGrad" x1="0%" y1="0%" x2="0%" y2="100%">
@@ -102,7 +112,7 @@ export const DynamicChart: React.FC<DynamicChartProps> = ({
             <stop offset="100%" stopColor={accentColor} stopOpacity={0.0} />
           </linearGradient>
           <filter id="chartGlow" x="-20%" y="-20%" width="140%" height="140%">
-            <feGaussianBlur stdDeviation="4" result="blur" />
+            <feGaussianBlur stdDeviation="5" result="blur" />
             <feMerge>
               <feMergeNode in="blur" />
               <feMergeNode in="SourceGraphic" />
@@ -112,7 +122,7 @@ export const DynamicChart: React.FC<DynamicChartProps> = ({
 
         {/* Grid Lines */}
         {showGrid && (
-          <g opacity={0.3}>
+          <g opacity={0.35}>
             {[0, 0.33, 0.66, 1].map((pct, idx) => {
               const y = padding.top + chartH * (1 - pct);
               return (
@@ -123,7 +133,7 @@ export const DynamicChart: React.FC<DynamicChartProps> = ({
                   x2={padding.left + chartW}
                   y2={y}
                   stroke={OFurryTheme.colors.borderLight}
-                  strokeDasharray="4 4"
+                  strokeDasharray="6 6"
                   strokeWidth={1}
                 />
               );
@@ -140,13 +150,13 @@ export const DynamicChart: React.FC<DynamicChartProps> = ({
           />
         )}
 
-        {/* Main Trend Line */}
+        {/* Main Bold Trend Line */}
         {type === 'line' && (
           <path
             d={pathD}
             fill="none"
             stroke={accentColor}
-            strokeWidth={4}
+            strokeWidth={5}
             strokeDasharray={totalLength}
             strokeDashoffset={strokeDashoffset}
             strokeLinecap="round"
@@ -164,7 +174,7 @@ export const DynamicChart: React.FC<DynamicChartProps> = ({
               [0, 1],
               { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' }
             );
-            const barW = (chartW / points.length) * 0.6;
+            const barW = (chartW / points.length) * 0.55;
             const barH = (padding.top + chartH - pt.y) * barProgress;
             const isLast = i === points.length - 1;
 
@@ -176,7 +186,7 @@ export const DynamicChart: React.FC<DynamicChartProps> = ({
                 width={barW}
                 height={barH}
                 fill={isLast ? accentColor : OFurryTheme.colors.primary}
-                rx={4}
+                rx={6}
                 opacity={0.9}
                 filter={isLast ? 'url(#chartGlow)' : undefined}
               />
@@ -194,17 +204,17 @@ export const DynamicChart: React.FC<DynamicChartProps> = ({
             <g key={i} transform={`translate(${pt.x}, ${pt.y}) scale(${ptSpring})`}>
               {/* Point Dot */}
               <circle
-                r={isLast ? 7 : 4}
+                r={isLast ? 8 : 5}
                 fill={isLast ? OFurryTheme.colors.accentYellow : OFurryTheme.colors.primary}
                 stroke={accentColor}
-                strokeWidth={2}
+                strokeWidth={2.5}
                 filter={isLast ? 'url(#chartGlow)' : undefined}
               />
 
               {/* Pulsing ring on the focal point */}
               {isLast && highlightLast && (
                 <circle
-                  r={12}
+                  r={16}
                   fill="none"
                   stroke={OFurryTheme.colors.accentYellow}
                   strokeWidth={2}
@@ -215,12 +225,12 @@ export const DynamicChart: React.FC<DynamicChartProps> = ({
               {/* Data Label / Value */}
               <text
                 x={0}
-                y={-14}
+                y={-18}
                 textAnchor="middle"
                 fill={isLast ? OFurryTheme.colors.accentOrange : OFurryTheme.colors.primary}
-                fontSize={isLast ? 16 : 13}
+                fontSize={isLast ? 18 : 14}
                 fontWeight={isLast ? 800 : 600}
-                fontFamily={OFurryTheme.typography.fontFamily}
+                fontFamily={OFurryTheme.typography.families.tech}
               >
                 {pt.value}
               </text>
@@ -233,12 +243,12 @@ export const DynamicChart: React.FC<DynamicChartProps> = ({
           <text
             key={`lbl-${i}`}
             x={pt.x}
-            y={height - 18}
+            y={height - 20}
             textAnchor="middle"
             fill={OFurryTheme.colors.secondary}
-            fontSize={13}
+            fontSize={14}
             fontWeight={600}
-            fontFamily={OFurryTheme.typography.fontFamily}
+            fontFamily={OFurryTheme.typography.families.tech}
           >
             {pt.label}
           </text>
@@ -247,3 +257,4 @@ export const DynamicChart: React.FC<DynamicChartProps> = ({
     </div>
   );
 };
+

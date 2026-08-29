@@ -33,19 +33,19 @@ export const AnimatedNumber: React.FC<AnimatedNumberProps> = ({
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
 
-  // Ambient layer: gentle breathing
+  // Ambient layer: gentle breathing (zero frozen frame)
   const ambient = getAmbientDrift(frame, {
     amplitudeY: 2.0,
-    amplitudeRotate: 0.3,
+    amplitudeRotate: 0.2,
     periodFrames: 65,
   });
 
   // Primary: Entry container spring
   const entryProgress = getSpringProgress(frame, fps, delay, MotionPresets.snappy);
-  const containerScale = interpolate(entryProgress, [0, 1], [0.7, 1]);
-  const containerOpacity = interpolate(entryProgress, [0, 0.5, 1], [0, 0.9, 1]);
+  const containerScale = interpolate(entryProgress, [0, 1], [0.75, 1]);
+  const containerOpacity = interpolate(entryProgress, [0, 0.5, 1], [0, 0.95, 1]);
 
-  // Number counting interpolation (fast exponential ease-out)
+  // Number counting interpolation (fast quartic ease-out for rapid roll + crisp snap)
   const countProgress = interpolate(
     frame,
     [delay, delay + durationInFrames],
@@ -53,7 +53,7 @@ export const AnimatedNumber: React.FC<AnimatedNumberProps> = ({
     {
       extrapolateLeft: 'clamp',
       extrapolateRight: 'clamp',
-      easing: (t) => 1 - Math.pow(1 - t, 4), // Quartic ease-out for rapid roll + precise stop
+      easing: (t) => 1 - Math.pow(1 - t, 4),
     }
   );
 
@@ -65,8 +65,17 @@ export const AnimatedNumber: React.FC<AnimatedNumberProps> = ({
 
   const isHero = variant === 'hero';
   const isCard = variant === 'card';
+  const isBadge = variant === 'badge';
 
-  const glowOpacity = getGlowPulse(frame, 40, 0.3, 0.7);
+  const glowOpacity = getGlowPulse(frame, 40, 0.4, 0.85);
+
+  const numberFontSize = isHero
+    ? OFurryTheme.typography.sizes.numberHero
+    : isCard
+    ? OFurryTheme.typography.sizes.numberCard
+    : OFurryTheme.typography.sizes.numberBadge;
+
+  const symbolFontSize = isHero ? 72 : isCard ? 48 : 28;
 
   return (
     <div
@@ -75,48 +84,67 @@ export const AnimatedNumber: React.FC<AnimatedNumberProps> = ({
         flexDirection: 'column',
         alignItems: 'center',
         justifyContent: 'center',
-        padding: isCard ? '24px 36px' : isHero ? '16px 28px' : '10px 20px',
-        backgroundColor: isCard ? OFurryTheme.colors.surfaceElevated : 'transparent',
-        borderRadius: isCard ? '20px' : '12px',
-        border: isCard ? `1px solid ${OFurryTheme.colors.borderLight}` : 'none',
-        boxShadow: isCard ? OFurryTheme.effects.cardGlow : undefined,
+        padding: isCard
+          ? '28px 44px'
+          : isBadge
+          ? '8px 20px'
+          : '12px 24px',
+        backgroundColor: isCard
+          ? 'rgba(20, 20, 20, 0.85)'
+          : isBadge
+          ? 'rgba(255, 153, 0, 0.1)'
+          : 'transparent',
+        borderRadius: isCard ? '20px' : isBadge ? '8px' : '12px',
+        border: isCard
+          ? `1px solid ${OFurryTheme.colors.borderLight}`
+          : isBadge
+          ? `1px solid ${OFurryTheme.colors.accentOrangeAlpha(0.5)}`
+          : 'none',
+        boxShadow: isCard ? OFurryTheme.effects.cardGlow : isBadge ? OFurryTheme.effects.glowOrange : undefined,
         transform: `translateY(${ambient.translateY}px) scale(${containerScale * ambient.scale})`,
         opacity: containerOpacity,
-        fontFamily: OFurryTheme.typography.fontFamily,
+        fontFamily: OFurryTheme.typography.families.tech,
         ...style,
       }}
     >
-      {/* Top / Label */}
+      {/* Top Technical Micro-Label */}
       {label && (
         <span
           style={{
-            fontSize: isHero ? '20px' : '15px',
-            fontWeight: OFurryTheme.typography.weights.semiBold,
+            fontFamily: OFurryTheme.typography.families.tech,
+            fontSize: isHero ? '20px' : '14px',
+            fontWeight: OFurryTheme.typography.weights.bold,
             color: OFurryTheme.colors.secondary,
             textTransform: 'uppercase',
             letterSpacing: OFurryTheme.typography.letterSpacing.widest,
-            marginBottom: '8px',
+            marginBottom: isHero ? '12px' : '6px',
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: '8px',
           }}
         >
+          <span style={{ color: highlightColor, opacity: 0.8 }}>//</span>
           {label}
         </span>
       )}
 
-      {/* Main Counter Display */}
+      {/* Main Monumental Counter Display */}
       <div
         style={{
           display: 'flex',
           alignItems: 'baseline',
-          gap: '4px',
+          justifyContent: 'center',
+          gap: '6px',
         }}
       >
         {prefix && (
           <span
             style={{
-              fontSize: isHero ? `${OFurryTheme.typography.sizes.title}px` : '32px',
+              fontFamily: OFurryTheme.typography.families.tech,
+              fontSize: `${symbolFontSize}px`,
               fontWeight: OFurryTheme.typography.weights.bold,
               color: highlightColor,
-              textShadow: `0 0 20px ${OFurryTheme.colors.accentOrangeAlpha(glowOpacity)}`,
+              textShadow: `0 0 24px ${OFurryTheme.colors.accentOrangeAlpha(glowOpacity)}`,
             }}
           >
             {prefix}
@@ -125,16 +153,13 @@ export const AnimatedNumber: React.FC<AnimatedNumberProps> = ({
 
         <span
           style={{
-            fontSize: isHero
-              ? `${OFurryTheme.typography.sizes.numberHero}px`
-              : isCard
-              ? `${OFurryTheme.typography.sizes.title}px`
-              : `${OFurryTheme.typography.sizes.subtitle}px`,
+            fontFamily: OFurryTheme.typography.families.tech,
+            fontSize: `${numberFontSize}px`,
             fontWeight: OFurryTheme.typography.weights.black,
             color: OFurryTheme.colors.primary,
-            lineHeight: 1,
+            lineHeight: OFurryTheme.typography.lineHeights.none,
             letterSpacing: OFurryTheme.typography.letterSpacing.tight,
-            textShadow: isHero ? `0 0 30px ${OFurryTheme.colors.accentOrangeAlpha(0.35)}` : 'none',
+            textShadow: isHero ? `0 0 35px ${OFurryTheme.colors.accentOrangeAlpha(0.4)}` : 'none',
             fontVariantNumeric: 'tabular-nums',
           }}
         >
@@ -144,10 +169,11 @@ export const AnimatedNumber: React.FC<AnimatedNumberProps> = ({
         {suffix && (
           <span
             style={{
-              fontSize: isHero ? `${OFurryTheme.typography.sizes.title}px` : '32px',
+              fontFamily: OFurryTheme.typography.families.tech,
+              fontSize: `${symbolFontSize}px`,
               fontWeight: OFurryTheme.typography.weights.extraBold,
               color: highlightColor,
-              textShadow: `0 0 20px ${OFurryTheme.colors.accentOrangeAlpha(glowOpacity)}`,
+              textShadow: `0 0 24px ${OFurryTheme.colors.accentOrangeAlpha(glowOpacity)}`,
               marginLeft: '4px',
             }}
           >
@@ -158,3 +184,4 @@ export const AnimatedNumber: React.FC<AnimatedNumberProps> = ({
     </div>
   );
 };
+

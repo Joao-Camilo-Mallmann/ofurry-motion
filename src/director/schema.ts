@@ -16,6 +16,7 @@ export const TextElementSchema = z.object({
   subtitle: z.string().optional(),
   variant: z.enum(['hero', 'title', 'subtitle', 'badge']).default('title'),
   highlightWords: z.array(z.string()).default([]),
+  font: z.enum(['archivo', 'bebas', 'syne', 'jakarta', 'montserrat']).optional(),
   align: z.enum(['center', 'left', 'right']).default('center'),
   delay: z.number().default(0),
   glow: z.boolean().default(false),

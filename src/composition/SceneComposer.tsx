@@ -14,28 +14,33 @@ import { MotionPresets, getSpringProgress } from '../theme/motion';
 
 export interface SceneComposerProps {
   scene: SceneSpec;
+  transparent?: boolean;
 }
 
-export const SceneComposer: React.FC<SceneComposerProps> = ({ scene }) => {
+export const SceneComposer: React.FC<SceneComposerProps> = ({
+  scene,
+  transparent = true,
+}) => {
   const frame = useCurrentFrame();
   const { width, height, fps } = useVideoConfig();
 
   // Choreography entry calculation with safe defaults
   const { entryDirection = 'bottom-up', ambientMotion = 'gentle-float' } = scene.choreography ?? {};
 
-  const entrySpring = getSpringProgress(frame, fps, 0, MotionPresets.smooth);
-  const opacity = interpolate(entrySpring, [0, 0.4, 1], [0, 0.9, 1]);
+  // Punch & Hold entry curve: fast snappy initial spring, then firm hold
+  const entrySpring = getSpringProgress(frame, fps, 0, MotionPresets.snappy);
+  const opacity = interpolate(entrySpring, [0, 0.35, 1], [0, 0.95, 1]);
 
   let entryTranslateX = 0;
   let entryTranslateY = 0;
 
   if (entryDirection === 'bottom-up') {
-    entryTranslateY = interpolate(entrySpring, [0, 1], [50, 0]);
+    entryTranslateY = interpolate(entrySpring, [0, 1], [60, 0]);
   } else if (entryDirection === 'left-glide') {
-    entryTranslateX = interpolate(entrySpring, [0, 1], [-60, 0]);
+    entryTranslateX = interpolate(entrySpring, [0, 1], [-80, 0]);
   } else if (entryDirection === 'diagonal-flow') {
-    entryTranslateX = interpolate(entrySpring, [0, 1], [-40, 0]);
-    entryTranslateY = interpolate(entrySpring, [0, 1], [40, 0]);
+    entryTranslateX = interpolate(entrySpring, [0, 1], [-50, 0]);
+    entryTranslateY = interpolate(entrySpring, [0, 1], [50, 0]);
   }
 
   // Render individual visual element
@@ -49,6 +54,7 @@ export const SceneComposer: React.FC<SceneComposerProps> = ({ scene }) => {
             subtitle={el.subtitle}
             variant={el.variant}
             highlightWords={el.highlightWords}
+            font={el.font}
             align={el.align}
             delay={el.delay}
             glow={el.glow}
@@ -118,7 +124,7 @@ export const SceneComposer: React.FC<SceneComposerProps> = ({ scene }) => {
     }
   };
 
-  // Render layout container structure
+  // Render layout container structure with monumental spacing
   const renderLayoutContent = () => {
     const { layout = 'centered-hero', elements } = scene;
 
@@ -131,14 +137,14 @@ export const SceneComposer: React.FC<SceneComposerProps> = ({ scene }) => {
           <div
             style={{
               display: 'grid',
-              gridTemplateColumns: '1.1fr 1fr',
-              gap: '60px',
+              gridTemplateColumns: '1.2fr 1fr',
+              gap: '70px',
               width: '100%',
               alignItems: 'center',
               justifyContent: 'center',
             }}
           >
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
               {textElements.map(renderElement)}
             </div>
             <div
@@ -147,7 +153,7 @@ export const SceneComposer: React.FC<SceneComposerProps> = ({ scene }) => {
                 flexDirection: 'column',
                 alignItems: 'center',
                 justifyContent: 'center',
-                gap: '24px',
+                gap: '28px',
               }}
             >
               {visualElements.map(renderElement)}
@@ -164,8 +170,8 @@ export const SceneComposer: React.FC<SceneComposerProps> = ({ scene }) => {
           <div
             style={{
               display: 'grid',
-              gridTemplateColumns: '1fr 1.1fr',
-              gap: '60px',
+              gridTemplateColumns: '1fr 1.2fr',
+              gap: '70px',
               width: '100%',
               alignItems: 'center',
               justifyContent: 'center',
@@ -177,12 +183,12 @@ export const SceneComposer: React.FC<SceneComposerProps> = ({ scene }) => {
                 flexDirection: 'column',
                 alignItems: 'center',
                 justifyContent: 'center',
-                gap: '24px',
+                gap: '28px',
               }}
             >
               {visualElements.map(renderElement)}
             </div>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
               {textElements.map(renderElement)}
             </div>
           </div>
@@ -201,7 +207,7 @@ export const SceneComposer: React.FC<SceneComposerProps> = ({ scene }) => {
               flexDirection: 'column',
               alignItems: 'center',
               justifyContent: 'center',
-              gap: '36px',
+              gap: '40px',
               width: '100%',
             }}
           >
@@ -226,7 +232,7 @@ export const SceneComposer: React.FC<SceneComposerProps> = ({ scene }) => {
             style={{
               display: 'grid',
               gridTemplateColumns: '1fr 1fr',
-              gap: '48px',
+              gap: '60px',
               width: '100%',
               alignItems: 'center',
             }}
@@ -257,7 +263,7 @@ export const SceneComposer: React.FC<SceneComposerProps> = ({ scene }) => {
               flexDirection: 'column',
               alignItems: 'center',
               justifyContent: 'center',
-              gap: '30px',
+              gap: '36px',
               width: '100%',
             }}
           >
@@ -274,13 +280,16 @@ export const SceneComposer: React.FC<SceneComposerProps> = ({ scene }) => {
         position: 'relative',
         width,
         height,
-        backgroundColor: OFurryTheme.colors.background,
+        backgroundColor: transparent ? 'transparent' : OFurryTheme.colors.background,
         overflow: 'hidden',
       }}
     >
-      {/* Background Atmosphere */}
+      {/* Background Tech Framing Atmosphere */}
       <ParticleField
         showGrid={true}
+        showCorners={true}
+        showCrosshairs={true}
+        transparent={transparent}
         speed={ambientMotion === 'grid-drift' ? 1.5 : 0.8}
       />
 
@@ -304,3 +313,4 @@ export const SceneComposer: React.FC<SceneComposerProps> = ({ scene }) => {
     </div>
   );
 };
+

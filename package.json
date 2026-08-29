@@ -1,28 +1,40 @@
 {
-  "name": "animation-to-yt",
+  "name": "ofurry-motion",
   "version": "1.0.0",
-  "description": "OFurry YouTube Motion Graphics Engine powered by Remotion & Bun",
+  "description": "Motion Design para o canal do OFurry powered by Remotion & Bun",
   "private": true,
   "scripts": {
     "studio": "remotion studio src/index.ts",
     "render": "remotion render src/index.ts OFurryComposition out/video.mp4",
     "render:sample": "remotion render src/index.ts OFurryComposition out/sample.mp4",
+    "render:coe": "remotion render src/index.ts COEComposition out/coe-intro.mp4",
+    "render:full": "remotion render src/index.ts COEComposition out/coe-full.mp4",
+    "render:scenes": "bun run scripts/render-scenes.ts --format=prores",
+    "render:scenes:webm": "bun run scripts/render-scenes.ts --format=webm",
+    "render:scenes:mp4": "bun run scripts/render-scenes.ts --format=mp4",
+    "render:scene": "bun run scripts/render-scenes.ts",
     "build": "tsc --noEmit"
   },
   "dependencies": {
+    "@fontsource/archivo-black": "^5.3.0",
+    "@fontsource/bebas-neue": "^5.3.0",
     "@fontsource/montserrat": "^5.1.0",
+    "@fontsource/plus-jakarta-sans": "^5.3.0",
+    "@fontsource/space-grotesk": "^5.3.0",
+    "@fontsource/syne": "^5.3.0",
     "lucide-react": "^1.16.0",
-    "react": "^19.2.8",
-    "react-dom": "^19.2.8",
-    "remotion": "4.0.518",
-    "zod": "^4.5.4"
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "remotion": "4.0.233",
+    "zod": "^3.23.8"
   },
   "devDependencies": {
-    "@remotion/bundler": "4.0.518",
-    "@remotion/cli": "4.0.518",
-    "@types/node": "^26.4.0",
-    "@types/react": "^19.2.18",
-    "@types/react-dom": "^19.2.5",
-    "typescript": "^7.0.2"
+    "@remotion/bundler": "4.0.233",
+    "@remotion/cli": "4.0.233",
+    "@remotion/renderer": "4.0.233",
+    "@types/node": "^22.5.0",
+    "@types/react": "^18.3.3",
+    "@types/react-dom": "^18.3.0",
+    "typescript": "^5.5.4"
   }
 }
