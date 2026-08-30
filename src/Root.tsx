@@ -13,6 +13,9 @@ import { OFurryTheme } from './theme/ofurry';
 import { SceneComposer } from './composition/SceneComposer';
 import { sampleScenes } from '../example/sample-script';
 import { coeScenes } from '../example/coe-script';
+import { promessaScenes } from '../example/promessa-script';
+import { coePromessaScenes } from '../example/coe-promessa-script';
+import { anchoredSilhouettesScenes } from '../example/anchored-silhouettes-script';
 import { SceneSpec } from './director/schema';
 
 export interface MainVideoProps {
@@ -39,9 +42,57 @@ export const MainVideo: React.FC<MainVideoProps> = ({ scenes, transparent = fals
 export const RemotionRoot: React.FC = () => {
   const totalSampleFrames = sampleScenes.reduce((acc, s) => acc + (s.durationInFrames ?? 90), 0);
   const totalCoeFrames = coeScenes.reduce((acc, s) => acc + (s.durationInFrames ?? 90), 0);
+  const totalPromessaFrames = promessaScenes.reduce((acc, s) => acc + (s.durationInFrames ?? 90), 0);
+  const totalCoePromessaFrames = coePromessaScenes.reduce((acc, s) => acc + (s.durationInFrames ?? 90), 0);
+  const totalAnchoredFrames = anchoredSilhouettesScenes.reduce((acc, s) => acc + (s.durationInFrames ?? 90), 0);
 
   return (
     <>
+      {/* Composição ADR-004 Silhuetas Ancoradas (Full Showcase) */}
+      <Composition
+        id="AnchoredSilhouettesComposition"
+        component={MainVideo as unknown as React.FC<Record<string, unknown>>}
+        durationInFrames={totalAnchoredFrames}
+        fps={OFurryTheme.layout.fps}
+        width={OFurryTheme.layout.width}
+        height={OFurryTheme.layout.height}
+        defaultProps={{
+          scenes: anchoredSilhouettesScenes,
+          transparent: false,
+        }}
+      />
+
+      {/* Mini-Vídeos Individuais ADR-004 com Canal Alpha NATIVO */}
+      {anchoredSilhouettesScenes.map((scene, idx) => (
+        <Composition
+          key={`adr04-${scene.id}`}
+          id={`ADR04-Cena-${idx + 1}-${scene.id}`}
+          component={SceneComposer as unknown as React.FC<Record<string, unknown>>}
+          durationInFrames={scene.durationInFrames ?? 90}
+          fps={OFurryTheme.layout.fps}
+          width={OFurryTheme.layout.width}
+          height={OFurryTheme.layout.height}
+          defaultProps={{
+            scene,
+            transparent: true,
+          }}
+        />
+      ))}
+
+      {/* Composição do Vídeo Promessa (Full Sequence) */}
+      <Composition
+        id="PromessaComposition"
+        component={MainVideo as unknown as React.FC<Record<string, unknown>>}
+        durationInFrames={totalPromessaFrames}
+        fps={OFurryTheme.layout.fps}
+        width={OFurryTheme.layout.width}
+        height={OFurryTheme.layout.height}
+        defaultProps={{
+          scenes: promessaScenes,
+          transparent: false,
+        }}
+      />
+
       {/* Composição do Vídeo do COE (Full Sequence) */}
       <Composition
         id="COEComposition"
@@ -79,12 +130,29 @@ export const RemotionRoot: React.FC = () => {
         width={OFurryTheme.layout.width}
         height={OFurryTheme.layout.height}
         defaultProps={{
-          scene: coeScenes[0],
+          scene: anchoredSilhouettesScenes[0],
           transparent: true,
         }}
       />
 
-      {/* Mini-Vídeos Individuais por Cena com Canal Alpha NATIVO (ProRes 4444 / WebM / Timeline Preview) */}
+      {/* Mini-Vídeos Promessa com Canal Alpha NATIVO (ProRes 4444 / WebM / Timeline Preview) */}
+      {promessaScenes.map((scene, idx) => (
+        <Composition
+          key={`promessa-${scene.id}`}
+          id={`Promessa-Cena-${idx + 1}-${scene.id}`}
+          component={SceneComposer as unknown as React.FC<Record<string, unknown>>}
+          durationInFrames={scene.durationInFrames ?? 90}
+          fps={OFurryTheme.layout.fps}
+          width={OFurryTheme.layout.width}
+          height={OFurryTheme.layout.height}
+          defaultProps={{
+            scene,
+            transparent: true,
+          }}
+        />
+      ))}
+
+      {/* Mini-Vídeos Individuais COE por Cena com Canal Alpha NATIVO */}
       {coeScenes.map((scene, idx) => (
         <Composition
           key={`coe-${scene.id}`}
@@ -100,7 +168,37 @@ export const RemotionRoot: React.FC = () => {
           }}
         />
       ))}
+
+      {/* Composição COE Promessa — "Será Mesmo?" (Full Sequence 15s) */}
+      <Composition
+        id="COEPromessaComposition"
+        component={MainVideo as unknown as React.FC<Record<string, unknown>>}
+        durationInFrames={totalCoePromessaFrames}
+        fps={OFurryTheme.layout.fps}
+        width={OFurryTheme.layout.width}
+        height={OFurryTheme.layout.height}
+        defaultProps={{
+          scenes: coePromessaScenes,
+          transparent: false,
+        }}
+      />
+
+      {/* Mini-Vídeos COE Promessa por Cena com Canal Alpha NATIVO */}
+      {coePromessaScenes.map((scene, idx) => (
+        <Composition
+          key={`coe-promessa-${scene.id}`}
+          id={`COEPromessa-Cena-${idx + 1}-${scene.id}`}
+          component={SceneComposer as unknown as React.FC<Record<string, unknown>>}
+          durationInFrames={scene.durationInFrames ?? 90}
+          fps={OFurryTheme.layout.fps}
+          width={OFurryTheme.layout.width}
+          height={OFurryTheme.layout.height}
+          defaultProps={{
+            scene,
+            transparent: true,
+          }}
+        />
+      ))}
     </>
   );
 };
-

@@ -17,6 +17,118 @@ export interface SceneComposerProps {
   transparent?: boolean;
 }
 
+/**
+ * Animated Technical Connector Line Bridge (ADR-004 Law 7)
+ */
+const ConnectorBridge: React.FC<{
+  type?: 'connector-line' | 'overlap' | 'color-trail' | 'none-justified';
+  orientation?: 'horizontal' | 'vertical' | 'orthogonal';
+  delay?: number;
+  length?: number;
+}> = ({ type = 'connector-line', orientation = 'horizontal', delay = 4, length = 120 }) => {
+  const frame = useCurrentFrame();
+  const { fps } = useVideoConfig();
+
+  if (type === 'none-justified' || type === 'overlap') return null;
+
+  const progress = getSpringProgress(frame, fps, delay, MotionPresets.snappy);
+  const opacity = interpolate(progress, [0, 0.4, 1], [0, 0.8, 1]);
+
+  if (type === 'color-trail') {
+    return (
+      <div
+        style={{
+          width: orientation === 'horizontal' ? length : 3,
+          height: orientation === 'vertical' ? length : 3,
+          background: `linear-gradient(${orientation === 'horizontal' ? '90deg' : '180deg'}, ${OFurryTheme.colors.accentOrange}, transparent)`,
+          opacity,
+          transform: `scale(${progress})`,
+        }}
+      />
+    );
+  }
+
+  // connector-line with terminal crosshairs/dots
+  if (orientation === 'horizontal') {
+    return (
+      <div
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: '4px',
+          width: length,
+          opacity,
+        }}
+      >
+        <div
+          style={{
+            width: 6,
+            height: 6,
+            borderRadius: '50%',
+            backgroundColor: OFurryTheme.colors.accentOrange,
+            boxShadow: OFurryTheme.effects.glowOrange,
+          }}
+        />
+        <div
+          style={{
+            flex: 1,
+            height: 2,
+            backgroundColor: OFurryTheme.colors.borderLight,
+            transform: `scaleX(${progress})`,
+            transformOrigin: 'left',
+          }}
+        />
+        <div
+          style={{
+            width: 4,
+            height: 4,
+            backgroundColor: OFurryTheme.colors.primary,
+          }}
+        />
+      </div>
+    );
+  }
+
+  return (
+    <div
+      style={{
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        gap: '4px',
+        height: length,
+        opacity,
+      }}
+    >
+      <div
+        style={{
+          width: 6,
+          height: 6,
+          borderRadius: '50%',
+          backgroundColor: OFurryTheme.colors.accentOrange,
+          boxShadow: OFurryTheme.effects.glowOrange,
+        }}
+      />
+      <div
+        style={{
+          flex: 1,
+          width: 2,
+          backgroundColor: OFurryTheme.colors.borderLight,
+          transform: `scaleY(${progress})`,
+          transformOrigin: 'top',
+        }}
+      />
+      <div
+        style={{
+          width: 4,
+          height: 4,
+          backgroundColor: OFurryTheme.colors.primary,
+        }}
+      />
+    </div>
+  );
+};
+
 export const SceneComposer: React.FC<SceneComposerProps> = ({
   scene,
   transparent = true,
@@ -43,13 +155,19 @@ export const SceneComposer: React.FC<SceneComposerProps> = ({
     entryTranslateY = interpolate(entrySpring, [0, 1], [50, 0]);
   }
 
+  // Determine dominant base size for relative scale calculations (ADR-004 Law 8)
+  const hasDominantNumber = scene.elements.some((e) => e.type === 'number');
+  const baseReferenceSize = hasDominantNumber
+    ? OFurryTheme.typography.sizes.numberHero
+    : OFurryTheme.typography.sizes.hero;
+
   // Render individual visual element
   const renderElement = (el: VisualElement, index: number) => {
     switch (el.type) {
       case 'text':
         return (
           <TextReveal
-            key={`el-${index}`}
+            key={el.id || `el-${index}`}
             text={el.text}
             subtitle={el.subtitle}
             variant={el.variant}
@@ -64,9 +182,11 @@ export const SceneComposer: React.FC<SceneComposerProps> = ({
       case 'icon':
         return (
           <Icon
-            key={`el-${index}`}
+            key={el.id || `el-${index}`}
             name={el.name}
             size={el.size}
+            sizeRatio={el.sizeRatio}
+            baseReferenceSize={baseReferenceSize}
             color={el.color}
             accentColor={el.accentColor}
             delay={el.delay}
@@ -78,7 +198,7 @@ export const SceneComposer: React.FC<SceneComposerProps> = ({
       case 'number':
         return (
           <AnimatedNumber
-            key={`el-${index}`}
+            key={el.id || `el-${index}`}
             value={el.value}
             startValue={el.startValue}
             prefix={el.prefix}
@@ -94,7 +214,7 @@ export const SceneComposer: React.FC<SceneComposerProps> = ({
       case 'nodes':
         return (
           <ConnectedNodes
-            key={`el-${index}`}
+            key={el.id || `el-${index}`}
             nodes={el.nodes}
             connections={el.connections}
             delay={el.delay}
@@ -107,7 +227,7 @@ export const SceneComposer: React.FC<SceneComposerProps> = ({
       case 'chart':
         return (
           <DynamicChart
-            key={`el-${index}`}
+            key={el.id || `el-${index}`}
             data={el.data}
             type={el.chartType}
             delay={el.delay}
@@ -124,29 +244,123 @@ export const SceneComposer: React.FC<SceneComposerProps> = ({
     }
   };
 
-  // Render layout container structure with monumental spacing
+  // Render layout container according to the 6 ADR-004 Silhouettes + Legacy aliases
   const renderLayoutContent = () => {
-    const { layout = 'centered-hero', elements } = scene;
+    const { layout = 'monumental-hero', elements } = scene;
 
     switch (layout) {
-      case 'split-left': {
-        const textElements = elements.filter((e) => e.type === 'text');
-        const visualElements = elements.filter((e) => e.type !== 'text');
+      // -------------------------------------------------------------
+      // 1. MONUMENTAL HERO (Massive centered anchor with stamp lockup)
+      // -------------------------------------------------------------
+      case 'monumental-hero':
+      case 'centered-hero':
+      case 'freeform': {
+        const primary = elements[0];
+        const secondaries = elements.slice(1);
+        const hasOverlap = secondaries.some(
+          (s) => s.anchorTo?.bridge === 'overlap' || s.anchorTo?.point === 'stamp-corner'
+        );
+
+        return (
+          <div
+            style={{
+              position: 'relative',
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: hasOverlap ? '0px' : '32px',
+              width: '100%',
+              textAlign: 'center',
+            }}
+          >
+            {primary && renderElement(primary, 0)}
+            {secondaries.length > 0 && (
+              <div
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: '24px',
+                  marginTop: hasOverlap ? '-30px' : '0px',
+                  zIndex: 2,
+                }}
+              >
+                {secondaries.map((sec, idx) => (
+                  <React.Fragment key={idx}>
+                    {sec.anchorTo?.bridge === 'connector-line' && (
+                      <ConnectorBridge
+                        type="connector-line"
+                        orientation="vertical"
+                        length={40}
+                        delay={sec.delay || 4}
+                      />
+                    )}
+                    {renderElement(sec, idx + 1)}
+                  </React.Fragment>
+                ))}
+              </div>
+            )}
+          </div>
+        );
+      }
+
+      // -------------------------------------------------------------
+      // 2. HORIZONTAL SPLIT (50/50 or 60/40 comparative divide)
+      // -------------------------------------------------------------
+      case 'horizontal-split':
+      case 'split-left':
+      case 'split-right':
+      case 'dual-compare': {
+        const isSplitRight = layout === 'split-right';
+        const leftElements = isSplitRight
+          ? elements.filter((e) => e.type !== 'text')
+          : elements.filter((e) => e.type === 'text');
+        const rightElements = isSplitRight
+          ? elements.filter((e) => e.type === 'text')
+          : elements.filter((e) => e.type !== 'text');
 
         return (
           <div
             style={{
               display: 'grid',
-              gridTemplateColumns: '1.2fr 1fr',
-              gap: '70px',
+              gridTemplateColumns: '1.2fr 1px 1fr',
+              gap: '50px',
               width: '100%',
               alignItems: 'center',
               justifyContent: 'center',
             }}
           >
+            {/* Left Column */}
             <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
-              {textElements.map(renderElement)}
+              {(leftElements.length > 0 ? leftElements : [elements[0]]).map(renderElement)}
             </div>
+
+            {/* Technical Center Divider */}
+            <div
+              style={{
+                position: 'relative',
+                height: '380px',
+                width: '1px',
+                backgroundColor: OFurryTheme.colors.border,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+              }}
+            >
+              <div
+                style={{
+                  position: 'absolute',
+                  width: 8,
+                  height: 8,
+                  borderRadius: '50%',
+                  backgroundColor: OFurryTheme.colors.accentOrange,
+                  boxShadow: OFurryTheme.effects.glowOrange,
+                }}
+              />
+            </div>
+
+            {/* Right Column */}
             <div
               style={{
                 display: 'flex',
@@ -156,61 +370,174 @@ export const SceneComposer: React.FC<SceneComposerProps> = ({
                 gap: '28px',
               }}
             >
-              {visualElements.map(renderElement)}
+              {(rightElements.length > 0 ? rightElements : elements.slice(1)).map(renderElement)}
             </div>
           </div>
         );
       }
 
-      case 'split-right': {
-        const textElements = elements.filter((e) => e.type === 'text');
-        const visualElements = elements.filter((e) => e.type !== 'text');
-
-        return (
-          <div
-            style={{
-              display: 'grid',
-              gridTemplateColumns: '1fr 1.2fr',
-              gap: '70px',
-              width: '100%',
-              alignItems: 'center',
-              justifyContent: 'center',
-            }}
-          >
-            <div
-              style={{
-                display: 'flex',
-                flexDirection: 'column',
-                alignItems: 'center',
-                justifyContent: 'center',
-                gap: '28px',
-              }}
-            >
-              {visualElements.map(renderElement)}
-            </div>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
-              {textElements.map(renderElement)}
-            </div>
-          </div>
-        );
-      }
-
-      case 'radial-network':
+      // -------------------------------------------------------------
+      // 3. STACKED STEPS (Vertical progression hierarchy)
+      // -------------------------------------------------------------
+      case 'stacked-steps':
       case 'bottom-heavy': {
-        const textElements = elements.filter((e) => e.type === 'text');
-        const otherElements = elements.filter((e) => e.type !== 'text');
-
         return (
           <div
             style={{
               display: 'flex',
               flexDirection: 'column',
+              alignItems: 'flex-start',
+              justifyContent: 'center',
+              gap: '24px',
+              width: '90%',
+              maxWidth: '1400px',
+              margin: '0 auto',
+            }}
+          >
+            {elements.map((el, i) => (
+              <React.Fragment key={i}>
+                <div
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '24px',
+                    width: '100%',
+                  }}
+                >
+                  <div
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      width: '36px',
+                      height: '36px',
+                      backgroundColor: i === 0 ? OFurryTheme.colors.accentOrange : OFurryTheme.colors.surfaceElevated,
+                      color: i === 0 ? '#000000' : OFurryTheme.colors.primary,
+                      fontFamily: OFurryTheme.typography.families.tech,
+                      fontWeight: OFurryTheme.typography.weights.bold,
+                      fontSize: '18px',
+                      border: `1px solid ${OFurryTheme.colors.borderLight}`,
+                    }}
+                  >
+                    {i + 1}
+                  </div>
+                  <div style={{ flex: 1 }}>{renderElement(el, i)}</div>
+                </div>
+                {i < elements.length - 1 && (
+                  <div style={{ paddingLeft: '17px' }}>
+                    <ConnectorBridge
+                      type="connector-line"
+                      orientation="vertical"
+                      length={24}
+                      delay={el.delay || 4}
+                    />
+                  </div>
+                )}
+              </React.Fragment>
+            ))}
+          </div>
+        );
+      }
+
+      // -------------------------------------------------------------
+      // 4. BLUEPRINT GRIFO (Document clause with neon highlight & leader)
+      // -------------------------------------------------------------
+      case 'blueprint-grifo': {
+        const textElements = elements.filter((e) => e.type === 'text');
+        const secondaryElements = elements.filter((e) => e.type !== 'text');
+
+        return (
+          <div
+            style={{
+              position: 'relative',
+              width: '100%',
+              padding: '40px 60px',
+              borderLeft: `4px solid ${OFurryTheme.colors.accentOrange}`,
+              backgroundColor: 'rgba(255, 153, 0, 0.03)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              gap: '60px',
+            }}
+          >
+            <div style={{ flex: 1.4, display: 'flex', flexDirection: 'column', gap: '18px' }}>
+              <div
+                style={{
+                  fontFamily: OFurryTheme.typography.families.tech,
+                  fontSize: '14px',
+                  color: OFurryTheme.colors.accentOrange,
+                  letterSpacing: '0.18em',
+                  textTransform: 'uppercase',
+                }}
+              >
+                REGULAMENTO // CLÁUSULA OFICIAL
+              </div>
+              {textElements.map(renderElement)}
+            </div>
+
+            {secondaryElements.length > 0 && (
+              <div
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '30px',
+                }}
+              >
+                <ConnectorBridge
+                  type="connector-line"
+                  orientation="horizontal"
+                  length={80}
+                  delay={6}
+                />
+                {secondaryElements.map(renderElement)}
+              </div>
+            )}
+          </div>
+        );
+      }
+
+      // -------------------------------------------------------------
+      // 5. HUD RADIAL (Central core with orbiting radial graph)
+      // -------------------------------------------------------------
+      case 'hud-radial':
+      case 'radial-network': {
+        const textElements = elements.filter((e) => e.type === 'text');
+        const networkElements = elements.filter((e) => e.type !== 'text');
+
+        return (
+          <div
+            style={{
+              position: 'relative',
+              display: 'flex',
+              flexDirection: 'column',
               alignItems: 'center',
               justifyContent: 'center',
-              gap: '40px',
+              gap: '24px',
               width: '100%',
             }}
           >
+            {/* Orbit rings background (Alpha friendly) */}
+            <div
+              style={{
+                position: 'absolute',
+                width: '650px',
+                height: '650px',
+                borderRadius: '50%',
+                border: `1px dashed ${OFurryTheme.colors.accentOrangeAlpha(0.25)}`,
+                pointerEvents: 'none',
+              }}
+            />
+            <div
+              style={{
+                position: 'absolute',
+                width: '900px',
+                height: '900px',
+                borderRadius: '50%',
+                border: `1px solid ${OFurryTheme.colors.whiteAlpha(0.06)}`,
+                pointerEvents: 'none',
+              }}
+            />
+
             {textElements.map(renderElement)}
             <div
               style={{
@@ -218,6 +545,53 @@ export const SceneComposer: React.FC<SceneComposerProps> = ({
                 alignItems: 'center',
                 justifyContent: 'center',
                 width: '100%',
+                zIndex: 2,
+              }}
+            >
+              {networkElements.map(renderElement)}
+            </div>
+          </div>
+        );
+      }
+
+      // -------------------------------------------------------------
+      // 6. SPLIT AUTHORITY (Colossal counter crossing boundary)
+      // -------------------------------------------------------------
+      case 'split-authority': {
+        const numberElement = elements.find((e) => e.type === 'number') || elements[0];
+        const otherElements = elements.filter((e) => e !== numberElement);
+
+        return (
+          <div
+            style={{
+              display: 'grid',
+              gridTemplateColumns: '1.4fr 1fr',
+              gap: '60px',
+              width: '100%',
+              alignItems: 'center',
+            }}
+          >
+            {/* Monumental Counter Column */}
+            <div
+              style={{
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'flex-start',
+                justifyContent: 'center',
+                borderRight: `2px solid ${OFurryTheme.colors.border}`,
+                paddingRight: '40px',
+              }}
+            >
+              {renderElement(numberElement, 0)}
+            </div>
+
+            {/* Attached Context Elements Column */}
+            <div
+              style={{
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'flex-start',
+                gap: '24px',
               }}
             >
               {otherElements.map(renderElement)}
@@ -226,35 +600,6 @@ export const SceneComposer: React.FC<SceneComposerProps> = ({
         );
       }
 
-      case 'dual-compare': {
-        return (
-          <div
-            style={{
-              display: 'grid',
-              gridTemplateColumns: '1fr 1fr',
-              gap: '60px',
-              width: '100%',
-              alignItems: 'center',
-            }}
-          >
-            {elements.map((el, i) => (
-              <div
-                key={i}
-                style={{
-                  display: 'flex',
-                  justifyContent: 'center',
-                  alignItems: 'center',
-                }}
-              >
-                {renderElement(el, i)}
-              </div>
-            ))}
-          </div>
-        );
-      }
-
-      case 'centered-hero':
-      case 'freeform':
       default: {
         return (
           <div
@@ -313,4 +658,3 @@ export const SceneComposer: React.FC<SceneComposerProps> = ({
     </div>
   );
 };
-

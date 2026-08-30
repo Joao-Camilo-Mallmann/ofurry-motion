@@ -8,7 +8,7 @@ export interface TextRevealProps {
   subtitle?: string;
   variant?: 'hero' | 'title' | 'subtitle' | 'badge';
   highlightWords?: string[];
-  font?: 'archivo' | 'bebas' | 'syne' | 'jakarta' | 'montserrat';
+  font?: 'archivo' | 'bebas' | 'syne' | 'space-grotesk' | 'jakarta' | 'montserrat';
   align?: 'center' | 'left' | 'right';
   delay?: number;
   glow?: boolean;
@@ -44,6 +44,7 @@ export const TextReveal: React.FC<TextRevealProps> = ({
     if (font === 'archivo') return OFurryTheme.typography.families.hero;
     if (font === 'bebas') return OFurryTheme.typography.families.condensed;
     if (font === 'syne') return OFurryTheme.typography.families.conceptual;
+    if (font === 'space-grotesk') return OFurryTheme.typography.families.tech;
     if (font === 'jakarta') return OFurryTheme.typography.families.body;
     if (font === 'montserrat') return OFurryTheme.typography.families.montserrat;
     
@@ -182,4 +183,3 @@ export const TextReveal: React.FC<TextRevealProps> = ({
     </div>
   );
 };
-

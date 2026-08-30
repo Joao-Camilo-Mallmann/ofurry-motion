@@ -7,6 +7,8 @@ import { MotionPresets, getAmbientDrift, getSpringProgress, getGlowPulse } from 
 export interface IconProps {
   name?: string;
   size?: number;
+  sizeRatio?: number;
+  baseReferenceSize?: number;
   color?: string;
   accentColor?: string;
   delay?: number;
@@ -19,6 +21,8 @@ export interface IconProps {
 export const Icon: React.FC<IconProps> = ({
   name = 'Zap',
   size = 96,
+  sizeRatio,
+  baseReferenceSize = OFurryTheme.typography.sizes.hero,
   color = OFurryTheme.colors.primary,
   accentColor = OFurryTheme.colors.accentOrange,
   delay = 0,
@@ -29,6 +33,11 @@ export const Icon: React.FC<IconProps> = ({
 }) => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
+
+  // Calculate proportional size according to ADR-004 Law 8
+  const effectiveSize = sizeRatio
+    ? Math.round(baseReferenceSize * sizeRatio)
+    : size;
 
   // 1. Ambient layer: Continuous floating and gentle breathing (zero frozen frames)
   const ambient = getAmbientDrift(frame, {
@@ -68,8 +77,8 @@ export const Icon: React.FC<IconProps> = ({
         display: 'inline-flex',
         alignItems: 'center',
         justifyContent: 'center',
-        width: size * 1.5,
-        height: size * 1.5,
+        width: effectiveSize * 1.4,
+        height: effectiveSize * 1.4,
         backgroundColor: 'transparent',
         transform: `translate3d(${ambient.translateX}px, ${ambient.translateY}px, 0) rotate(${ambient.rotate}deg)`,
         ...style,
@@ -80,8 +89,8 @@ export const Icon: React.FC<IconProps> = ({
         <div
           style={{
             position: 'absolute',
-            width: size * 1.2,
-            height: size * 1.2,
+            width: effectiveSize * 1.2,
+            height: effectiveSize * 1.2,
             borderRadius: '50%',
             border: `2px solid ${accentColor}`,
             boxShadow: `0 0 20px ${accentColor}`,
@@ -97,8 +106,8 @@ export const Icon: React.FC<IconProps> = ({
         <div
           style={{
             position: 'absolute',
-            width: size * 1.2,
-            height: size * 1.2,
+            width: effectiveSize * 1.2,
+            height: effectiveSize * 1.2,
             borderRadius: '50%',
             background: `radial-gradient(circle, ${OFurryTheme.colors.accentOrangeAlpha(0.5)} 0%, transparent 70%)`,
             opacity: glowIntensity * 0.4 * opacity,
@@ -123,7 +132,7 @@ export const Icon: React.FC<IconProps> = ({
           customSvg
         ) : (
           <LucideComponent
-            size={size}
+            size={effectiveSize}
             color={color}
             strokeWidth={2.2}
             style={{ display: 'block' }}
@@ -133,4 +142,3 @@ export const Icon: React.FC<IconProps> = ({
     </div>
   );
 };
-

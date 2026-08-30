@@ -1,9 +1,72 @@
 import { z } from 'zod';
-import { SceneSpec, SceneSpecSchema } from './schema';
+import { SceneSpec, SceneSpecSchema, VisualElement } from './schema';
+
+/**
+ * Ensures multi-element scenes have valid anchoring hierarchies (ADR-004 Law 7 & 8)
+ * and prevents unanchored floating orphan elements.
+ */
+export function repairAnchors(scene: SceneSpec): SceneSpec {
+  if (!scene.elements || scene.elements.length <= 1) {
+    return scene;
+  }
+
+  const elements = [...scene.elements];
+  // 1. Identify dominant anchor element (first text or number or first element)
+  let dominantIndex = elements.findIndex(
+    (el) => el.type === 'text' || el.type === 'number'
+  );
+  if (dominantIndex === -1) dominantIndex = 0;
+
+  const dominant = { ...elements[dominantIndex] };
+  const dominantId = dominant.id || 'hero-anchor';
+  dominant.id = dominantId;
+  elements[dominantIndex] = dominant;
+
+  const dominantIsNumber = dominant.type === 'number';
+
+  // 2. Validate and attach secondary elements to dominant anchor if unanchored
+  const repairedElements: VisualElement[] = elements.map((el, idx) => {
+    if (idx === dominantIndex) {
+      return el;
+    }
+
+    const updated = { ...el };
+    if (!updated.id) {
+      updated.id = `${el.type}-${idx + 1}`;
+    }
+
+    // If unanchored, auto-assign anchorTo pointing to dominant
+    if (!updated.anchorTo) {
+      updated.anchorTo = {
+        targetId: dominantId,
+        point: 'cap-height-right',
+        bridge: 'connector-line',
+        offsetX: 0,
+        offsetY: 0,
+      };
+    }
+
+    // If sizeRatio not specified, calculate based on dominant element
+    if (updated.sizeRatio === undefined) {
+      if (updated.type === 'icon') {
+        updated.sizeRatio = dominantIsNumber ? 0.4 : 0.65;
+      } else {
+        updated.sizeRatio = 0.8;
+      }
+    }
+
+    return updated;
+  });
+
+  return {
+    ...scene,
+    elements: repairedElements,
+  };
+}
 
 /**
  * Generates a safe, beautifully styled fallback SceneSpec
- * when LLM output is malformed or invalid.
+ * adhering to ADR-004 Anchored Composition when LLM output is malformed.
  */
 export function createFallbackScene(
   rawText: string = 'CONCEITO CENTRAL',
@@ -24,7 +87,7 @@ export function createFallbackScene(
   return {
     id,
     durationInFrames,
-    layout: 'centered-hero',
+    layout: 'monumental-hero',
     choreography: {
       entryDirection: 'bottom-up',
       drawSpeed: 'snappy',
@@ -32,25 +95,33 @@ export function createFallbackScene(
     },
     artDirection: {
       mood: 'analytical-tech',
-      visualMetaphor: 'Fallback visual safety preset',
+      visualMetaphor: 'Fallback anchored visual safety preset',
     },
     elements: [
       {
+        id: 'fallback-hero-text',
         type: 'text',
         text: safeText,
-        variant: 'title',
+        variant: 'hero',
         align: 'center',
         glow: true,
         delay: 0,
         highlightWords: [],
       },
       {
+        id: 'fallback-hero-icon',
         type: 'icon',
         name: 'Zap',
         size: 96,
+        sizeRatio: 0.65,
         delay: 4,
         showRing: true,
         showGlow: true,
+        anchorTo: {
+          targetId: 'fallback-hero-text',
+          point: 'cap-height-right',
+          bridge: 'overlap',
+        },
       },
     ],
   };
@@ -59,6 +130,7 @@ export function createFallbackScene(
 /**
  * Validates a raw input (string or object) as SceneSpec.
  * In case of failure, automatically builds a safe fallback scene.
+ * Automatically repairs unanchored secondary elements on valid scenes.
  */
 export function validateSceneSpec(
   input: unknown,
@@ -90,9 +162,10 @@ export function validateSceneSpec(
   const result = SceneSpecSchema.safeParse(parsedInput);
 
   if (result.success) {
+    const repaired = repairAnchors(result.data);
     return {
       success: true,
-      data: result.data,
+      data: repaired,
     };
   }
 
@@ -108,7 +181,7 @@ export function validateSceneSpec(
 }
 
 /**
- * Validates an array of scenes, repairing any broken scenes with fallbacks.
+ * Validates an array of scenes, repairing any broken scenes with fallbacks and anchor graphs.
  */
 export function validateSceneArray(scenes: unknown[]): SceneSpec[] {
   return scenes.map((s, idx) => {

@@ -1,7 +1,7 @@
 import { z } from 'zod';
 
 /**
- * Zod Schemas and TypeScript Types for OFurry Motion Director
+ * Zod Schemas and TypeScript Types for OFurry Motion Director (ADR-004 Anchored Composition)
  */
 
 export const PositionSchema = z.object({
@@ -9,24 +9,53 @@ export const PositionSchema = z.object({
   y: z.number().optional().describe('Y offset or coordinate in px or percentage'),
 });
 
+// ADR-004 Anchoring & Relational Positioning Schemas
+export const AnchorPointSchema = z.enum([
+  'cap-height-right',
+  'baseline-left',
+  'stamp-corner',
+  'leader-line',
+  'side-rail',
+  'center-below',
+]);
+
+export const CompositionBridgeSchema = z.enum([
+  'connector-line',
+  'overlap',
+  'color-trail',
+  'none-justified',
+]);
+
+export const AnchorToSchema = z.object({
+  targetId: z.string().describe('ID of the dominant parent element to anchor to'),
+  point: AnchorPointSchema.default('cap-height-right'),
+  bridge: CompositionBridgeSchema.default('connector-line'),
+  offsetX: z.number().default(0),
+  offsetY: z.number().default(0),
+});
+
 // 1. Text Reveal Element Schema
 export const TextElementSchema = z.object({
+  id: z.string().optional(),
   type: z.literal('text'),
   text: z.string().describe('Minimal text - 2 to 4 keywords recommended'),
   subtitle: z.string().optional(),
   variant: z.enum(['hero', 'title', 'subtitle', 'badge']).default('title'),
   highlightWords: z.array(z.string()).default([]),
-  font: z.enum(['archivo', 'bebas', 'syne', 'jakarta', 'montserrat']).optional(),
+  font: z.enum(['archivo', 'bebas', 'syne', 'space-grotesk', 'jakarta', 'montserrat']).optional(),
   align: z.enum(['center', 'left', 'right']).default('center'),
   delay: z.number().default(0),
   glow: z.boolean().default(false),
   position: PositionSchema.optional(),
+  anchorTo: AnchorToSchema.optional(),
+  sizeRatio: z.number().optional().describe('Relative size multiplier (0.2 to 2.0)'),
 });
 
 // 2. Icon Element Schema
 export const IconElementSchema = z.object({
+  id: z.string().optional(),
   type: z.literal('icon'),
-  name: z.string().default('Zap').describe('Lucide icon name e.g. TrendingUp, DollarSign, Shield, Zap, Cpu'),
+  name: z.string().default('Zap').describe('Lucide icon name e.g. TrendingUp, DollarSign, Shield, Zap, Cpu, Flame, Lock, Layers, Target'),
   size: z.number().default(96),
   color: z.string().optional(),
   accentColor: z.string().optional(),
@@ -34,10 +63,13 @@ export const IconElementSchema = z.object({
   showRing: z.boolean().default(true),
   showGlow: z.boolean().default(true),
   position: PositionSchema.optional(),
+  anchorTo: AnchorToSchema.optional(),
+  sizeRatio: z.number().optional().describe('Relative scale ratio derived from dominant anchor (e.g. 0.55-0.75 for hero text, 0.35-0.45 for hero numbers)'),
 });
 
 // 3. Animated Number Counter Schema
 export const NumberElementSchema = z.object({
+  id: z.string().optional(),
   type: z.literal('number'),
   value: z.number().describe('Target metric value'),
   startValue: z.number().default(0),
@@ -49,6 +81,8 @@ export const NumberElementSchema = z.object({
   delay: z.number().default(0),
   variant: z.enum(['hero', 'badge', 'card']).default('hero'),
   position: PositionSchema.optional(),
+  anchorTo: AnchorToSchema.optional(),
+  sizeRatio: z.number().optional(),
 });
 
 // 4. Connected Tech Nodes Schema
@@ -67,6 +101,7 @@ export const NodeConnectionSchema = z.object({
 });
 
 export const NodesElementSchema = z.object({
+  id: z.string().optional(),
   type: z.literal('nodes'),
   nodes: z.array(NodePointSchema),
   connections: z.array(NodeConnectionSchema).default([]),
@@ -75,6 +110,8 @@ export const NodesElementSchema = z.object({
   width: z.number().default(800),
   height: z.number().default(450),
   position: PositionSchema.optional(),
+  anchorTo: AnchorToSchema.optional(),
+  sizeRatio: z.number().optional(),
 });
 
 // 5. Dynamic Chart Schema
@@ -84,6 +121,7 @@ export const ChartDataPointSchema = z.object({
 });
 
 export const ChartElementSchema = z.object({
+  id: z.string().optional(),
   type: z.literal('chart'),
   data: z.array(ChartDataPointSchema),
   chartType: z.enum(['line', 'bar']).default('line'),
@@ -94,6 +132,8 @@ export const ChartElementSchema = z.object({
   showGrid: z.boolean().default(true),
   highlightLast: z.boolean().default(true),
   position: PositionSchema.optional(),
+  anchorTo: AnchorToSchema.optional(),
+  sizeRatio: z.number().optional(),
 });
 
 // Discriminated Union of all Visual Elements
@@ -119,19 +159,30 @@ export const ArtDirectionSchema = z.object({
   overridePrompt: z.string().optional().describe('Custom visual direction requested by user'),
 });
 
+// ADR-004 6 Layout Silhouettes + Legacy compatibility
+export const LayoutSilhouetteSchema = z.enum([
+  // 6 ADR-004 Canonical Silhouettes
+  'monumental-hero',
+  'horizontal-split',
+  'stacked-steps',
+  'blueprint-grifo',
+  'hud-radial',
+  'split-authority',
+  // Legacy aliases
+  'centered-hero',
+  'split-left',
+  'split-right',
+  'radial-network',
+  'bottom-heavy',
+  'dual-compare',
+  'freeform',
+]);
+
 // Complete Scene Specification Schema
 export const SceneSpecSchema = z.object({
   id: z.string(),
   durationInFrames: z.number().min(15).default(90),
-  layout: z.enum([
-    'split-left',
-    'split-right',
-    'radial-network',
-    'bottom-heavy',
-    'centered-hero',
-    'dual-compare',
-    'freeform',
-  ]).default('centered-hero'),
+  layout: LayoutSilhouetteSchema.default('monumental-hero'),
   choreography: ChoreographySchema.default({
     entryDirection: 'bottom-up',
     drawSpeed: 'snappy',
@@ -142,6 +193,11 @@ export const SceneSpecSchema = z.object({
 });
 
 // TypeScript Types (using z.input to allow natural optional fields on authored scenes)
+export type AnchorPoint = z.infer<typeof AnchorPointSchema>;
+export type CompositionBridge = z.infer<typeof CompositionBridgeSchema>;
+export type AnchorTo = z.input<typeof AnchorToSchema>;
+export type LayoutSilhouette = z.infer<typeof LayoutSilhouetteSchema>;
+
 export type TextElement = z.input<typeof TextElementSchema>;
 export type IconElement = z.input<typeof IconElementSchema>;
 export type NumberElement = z.input<typeof NumberElementSchema>;

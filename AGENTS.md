@@ -24,7 +24,7 @@ When exploring new video scripts, structuring multi-scene narration, or discover
 
 ---
 
-## 🏆 The 6 Golden Rules of the OFurry Engine
+## 🏆 The 10 Golden Rules of the OFurry Engine (ADR-002 + ADR-004)
 
 1. **Minimal Text (2-4 Words)**: Never display full sentences or paragraphs. Extract only 2 to 4 anchor keywords or metrics. Voice tells the story; screen provides visual authority.
 2. **Monumental Scale**: Hero titles occupy 70%-90% screen width (120px-150px). Numbers reach 180px-220px.
@@ -36,6 +36,20 @@ When exploring new video scripts, structuring multi-scene narration, or discover
 4. **Anti-"AI Template" Aesthetics**: High contrast solid black (#000000), solid neon orange blocks (#FF9900) with pure black text (#000000), precision crosshairs, and zero generic floating blur blobs.
 5. **Native Alpha Channel**: Transparent background output in ProRes 4444 (`.mov`) or WebM.
 6. **Punch & Hold Physics**: Snappy damped spring entry (frames 0-15), solid hold for effortless reading, and continuous subtle micro-drift (±2px).
+7. **Anchored Composition (Zero Orphans)**: Every secondary element (icon, metric, label) must declare `anchorTo` and `compositionBridge` (`connector-line`, `overlap`, `color-trail`, `none-justified`) tied to the dominant anchor element.
+8. **Relative Proportional Scaling (`sizeRatio`)**: Icons scale relative to the dominant anchor (55%-75% of text hero height; 35%-45% of number hero height).
+9. **6 Geometrically Distinct Silhouettes**: Prevent repetition across scenes by rotating between `monumental-hero`, `horizontal-split`, `stacked-steps`, `blueprint-grifo`, `hud-radial`, and `split-authority`.
+10. **Dramatic Kinetic Metaphors**: Translate narrative tension into physical motion (ceiling collisions, split flows, highlighter callouts, asset decay) rather than static slides.
+
+---
+
+## 🔄 Human-in-the-Loop Production Workflow (5 Steps)
+
+1. **Concept & Kinetic Metaphor**: Extract narrative tension and identify physical motion metaphors.
+2. **Draft & Snapshot Preview**: Author `SceneSpec` JSON and preview in Remotion Studio.
+3. **User Validation Checkpoint**: Present composition layout, anchors, and keyword hooks for approval.
+4. **Rapid Refine**: Fine-tune typography, spacing, or timing based on feedback.
+5. **Final Alpha Render**: Batch export transparent ProRes 4444 (`.mov`) or WebM mini-videos.
 
 ---
 

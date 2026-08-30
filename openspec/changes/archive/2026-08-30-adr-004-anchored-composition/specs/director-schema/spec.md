@@ -1,9 +1,4 @@
-# director-schema Specification
-
-## Purpose
-Defines Zod schemas, TypeScript types, validation rules, and prompt specifications for the OFurry AI Motion Director (ADR-004 Anchored Edition).
-
-## Requirements
+## MODIFIED Requirements
 
 ### Requirement: Structured SceneSpec Zod Schema
 The system SHALL define a Zod schema and TypeScript types for `SceneSpec`, validating layout types across 6 distinct silhouettes, anchored relational positioning (`anchorTo`), composition bridges (`compositionBridge`), relative scale ratios (`sizeRatio`), choreography parameters, art direction metadata, and visual element props.

@@ -1,4 +1,4 @@
-﻿import path from 'path';
+import path from 'path';
 import fs from 'fs';
 import { bundle } from '@remotion/bundler';
 import { getCompositions, renderMedia, RenderMediaOnProgress } from '@remotion/renderer';
@@ -65,7 +65,7 @@ async function main() {
   
   // Filter for scene-level compositions
   let sceneCompositions = compositions.filter(
-    (c) => c.id.startsWith('COE-Cena-') || c.id.startsWith('Scene-')
+    (c) => c.id.includes('-Cena-') || c.id.startsWith('Scene-') || c.id.startsWith('COE-Cena-') || c.id.startsWith('Promessa-Cena-')
   );
 
   if (options.id) {
@@ -96,16 +96,19 @@ async function main() {
       codec: 'prores' as const,
       proResProfile: '4444' as const,
       pixelFormat: 'yuva444p10le' as const,
+      imageFormat: 'png' as const,
       extension: 'mov',
     },
     webm: {
       codec: 'vp9' as const,
       pixelFormat: 'yuva420p' as const,
+      imageFormat: 'png' as const,
       extension: 'webm',
     },
     mp4: {
       codec: 'h264' as const,
       pixelFormat: 'yuv420p' as const,
+      imageFormat: 'jpeg' as const,
       extension: 'mp4',
     },
   }[options.format];
@@ -130,6 +133,7 @@ async function main() {
       codec: codecConfig.codec,
       proResProfile: (codecConfig as { proResProfile?: '4444' }).proResProfile,
       pixelFormat: codecConfig.pixelFormat,
+      imageFormat: codecConfig.imageFormat,
       outputLocation: outputFile,
       onProgress,
       overwrite: true,
