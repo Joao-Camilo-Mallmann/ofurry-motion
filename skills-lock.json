@@ -17,6 +17,36 @@
       "source": "local",
       "sourceType": "workspace",
       "skillPath": ".agents/skills/generate-video/SKILL.md"
+    },
+    "openspec-apply-change": {
+      "source": "local",
+      "sourceType": "workspace",
+      "skillPath": ".agents/skills/openspec-apply-change/SKILL.md"
+    },
+    "openspec-archive-change": {
+      "source": "local",
+      "sourceType": "workspace",
+      "skillPath": ".agents/skills/openspec-archive-change/SKILL.md"
+    },
+    "openspec-explore": {
+      "source": "local",
+      "sourceType": "workspace",
+      "skillPath": ".agents/skills/openspec-explore/SKILL.md"
+    },
+    "openspec-propose": {
+      "source": "local",
+      "sourceType": "workspace",
+      "skillPath": ".agents/skills/openspec-propose/SKILL.md"
+    },
+    "openspec-sync-specs": {
+      "source": "local",
+      "sourceType": "workspace",
+      "skillPath": ".agents/skills/openspec-sync-specs/SKILL.md"
+    },
+    "openspec-update-change": {
+      "source": "local",
+      "sourceType": "workspace",
+      "skillPath": ".agents/skills/openspec-update-change/SKILL.md"
     }
   }
 }
