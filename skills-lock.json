@@ -13,10 +13,10 @@
       "skillPath": "skills/motion-design/SKILL.md",
       "computedHash": "4f16f46c81f25a2a25b7a4720b7ea001e65f384b31b5b7f4b455fef87fbc9016"
     },
-    "generate-video": {
+    "director-orchestrator": {
       "source": "local",
       "sourceType": "workspace",
-      "skillPath": ".agents/skills/generate-video/SKILL.md"
+      "skillPath": ".agents/skills/director-orchestrator/SKILL.md"
     },
     "openspec-apply-change": {
       "source": "local",

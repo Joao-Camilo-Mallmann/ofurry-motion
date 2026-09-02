@@ -1,12 +1,9 @@
 # interactive-generation-workflow Specification
 
-## Purpose
-Standardized 5-step human-in-the-loop workflow for generating, previewing, validating, and rendering motion design scenes for the OFurry channel.
-
-## Requirements
+## MODIFIED Requirements
 
 ### Requirement: Standardized Human-in-the-Loop Generation Workflow
-The system SHALL provide a standardized human-in-the-loop workflow within the `director-orchestrator` skill, ensuring phrase-by-phrase decomposition and human-readable plan validation before any `SceneSpec` JSON generation or Alpha rendering.
+The system SHALL provide a standardized human-in-the-loop workflow within the `director-orchestrator` and `generate-video` skills, ensuring phrase-by-phrase decomposition and human-readable plan validation before any `SceneSpec` JSON generation or Alpha rendering.
 
 #### Scenario: Step 1 & 2 - Creative Conception and Preview Setup
 - **WHEN** user provides a script excerpt and target timing

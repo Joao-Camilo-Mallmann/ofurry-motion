@@ -15,6 +15,27 @@ import { sampleScenes } from '../example/sample-script';
 import { coeScenes } from '../example/coe-script';
 import { promessaScenes } from '../example/promessa-script';
 import { coePromessaScenes } from '../example/coe-promessa-script';
+import { coeBloco2Scenes } from '../example/coe-bloco2-script';
+import { coeBloco3Scenes } from '../example/coe-bloco3-script';
+import {
+  BespokeBloco2Sequence,
+  Scene1PatrimonioSeguro,
+  Scene2ArmadilhaBloqueada,
+  Scene3MaquinaDeVendas,
+} from './composition/scenes/BespokeBloco2Scenes';
+import {
+  BespokeBloco3Sequence,
+  Scene1AbrirProduto,
+  Scene2DuasCoisas,
+  Scene3ProtegerCapital,
+  Scene4BuscarGanhos,
+  Scene5AtivosReferencia,
+  Scene6DivisaoCapital,
+  Scene7RendaFixaMotor,
+  Scene8TetoCallSpread,
+  Scene9InflacaoCorrosao,
+  Scene10PerguntasDecisivas,
+} from './composition/scenes/BespokeBloco3Scenes';
 import { anchoredSilhouettesScenes } from '../example/anchored-silhouettes-script';
 import { SceneSpec } from './director/schema';
 
@@ -44,6 +65,8 @@ export const RemotionRoot: React.FC = () => {
   const totalCoeFrames = coeScenes.reduce((acc, s) => acc + (s.durationInFrames ?? 90), 0);
   const totalPromessaFrames = promessaScenes.reduce((acc, s) => acc + (s.durationInFrames ?? 90), 0);
   const totalCoePromessaFrames = coePromessaScenes.reduce((acc, s) => acc + (s.durationInFrames ?? 90), 0);
+  const totalBloco2Frames = coeBloco2Scenes.reduce((acc, s) => acc + (s.durationInFrames ?? 90), 0);
+  const totalBloco3Frames = coeBloco3Scenes.reduce((acc, s) => acc + (s.durationInFrames ?? 90), 0);
   const totalAnchoredFrames = anchoredSilhouettesScenes.reduce((acc, s) => acc + (s.durationInFrames ?? 90), 0);
 
   return (
@@ -199,6 +222,258 @@ export const RemotionRoot: React.FC = () => {
           }}
         />
       ))}
+
+      {/* Composição Bloco 2 — Fato Chocante / Padrão Repetido (Full Sequence 10s) */}
+      <Composition
+        id="COEBloco2Composition"
+        component={MainVideo as unknown as React.FC<Record<string, unknown>>}
+        durationInFrames={totalBloco2Frames}
+        fps={OFurryTheme.layout.fps}
+        width={OFurryTheme.layout.width}
+        height={OFurryTheme.layout.height}
+        defaultProps={{
+          scenes: coeBloco2Scenes,
+          transparent: false,
+        }}
+      />
+
+      {/* Mini-Vídeos Bloco 2 por Cena com Canal Alpha NATIVO (ProRes 4444 / WebM) */}
+      {coeBloco2Scenes.map((scene, idx) => (
+        <Composition
+          key={`coe-b02-${scene.id}`}
+          id={`COEB2-Cena-${idx + 1}-${scene.id}`}
+          component={SceneComposer as unknown as React.FC<Record<string, unknown>>}
+          durationInFrames={scene.durationInFrames ?? 90}
+          fps={OFurryTheme.layout.fps}
+          width={OFurryTheme.layout.width}
+          height={OFurryTheme.layout.height}
+          defaultProps={{
+            scene,
+            transparent: true,
+          }}
+        />
+      ))}
+
+      {/* ========================================================= */}
+      {/* 🚀 BESPOKE KINETIC MOTION GRAPHICS (BLOCO 2 - 10s)        */}
+      {/* Visual cinematográfico direto com animações ricas & Alpha  */}
+      {/* ========================================================= */}
+      <Composition
+        id="KineticBloco2-Full-10s"
+        component={BespokeBloco2Sequence as unknown as React.FC<Record<string, unknown>>}
+        durationInFrames={300}
+        fps={OFurryTheme.layout.fps}
+        width={OFurryTheme.layout.width}
+        height={OFurryTheme.layout.height}
+        defaultProps={{
+          transparent: false,
+        }}
+      />
+
+      <Composition
+        id="KineticB2-Cena-1-Patrimonio-Seguro"
+        component={Scene1PatrimonioSeguro as unknown as React.FC<Record<string, unknown>>}
+        durationInFrames={105}
+        fps={OFurryTheme.layout.fps}
+        width={OFurryTheme.layout.width}
+        height={OFurryTheme.layout.height}
+        defaultProps={{
+          transparent: true,
+        }}
+      />
+
+      <Composition
+        id="KineticB2-Cena-2-Armadilha-Bloqueada"
+        component={Scene2ArmadilhaBloqueada as unknown as React.FC<Record<string, unknown>>}
+        durationInFrames={90}
+        fps={OFurryTheme.layout.fps}
+        width={OFurryTheme.layout.width}
+        height={OFurryTheme.layout.height}
+        defaultProps={{
+          transparent: true,
+        }}
+      />
+
+      <Composition
+        id="KineticB2-Cena-3-Maquina-De-Vendas"
+        component={Scene3MaquinaDeVendas as unknown as React.FC<Record<string, unknown>>}
+        durationInFrames={105}
+        fps={OFurryTheme.layout.fps}
+        width={OFurryTheme.layout.width}
+        height={OFurryTheme.layout.height}
+        defaultProps={{
+          transparent: true,
+        }}
+      />
+
+      {/* ========================================================= */}
+      {/* 📊 DECLARATIVE BLOCO 3 (5 CENAS - 17s)                    */}
+      {/* ========================================================= */}
+      <Composition
+        id="COEBloco3Composition"
+        component={MainVideo as unknown as React.FC<Record<string, unknown>>}
+        durationInFrames={totalBloco3Frames}
+        fps={OFurryTheme.layout.fps}
+        width={OFurryTheme.layout.width}
+        height={OFurryTheme.layout.height}
+        defaultProps={{
+          scenes: coeBloco3Scenes,
+          transparent: false,
+        }}
+      />
+
+      {/* Mini-Vídeos Bloco 3 Declarativo por Cena com Canal Alpha NATIVO */}
+      {coeBloco3Scenes.map((scene, idx) => (
+        <Composition
+          key={`coe-b03-${scene.id}`}
+          id={`COEB3-Cena-${idx + 1}-${scene.id}`}
+          component={SceneComposer as unknown as React.FC<Record<string, unknown>>}
+          durationInFrames={scene.durationInFrames ?? 90}
+          fps={OFurryTheme.layout.fps}
+          width={OFurryTheme.layout.width}
+          height={OFurryTheme.layout.height}
+          defaultProps={{
+            scene,
+            transparent: true,
+          }}
+        />
+      ))}
+
+      {/* ========================================================= */}
+      {/* 🚀 BESPOKE KINETIC MOTION GRAPHICS (BLOCO 3 - 38s)        */}
+      {/* Visual cinematográfico direto com animações ricas & Alpha  */}
+      {/* ========================================================= */}
+      <Composition
+        id="KineticBloco3-Full-38s"
+        component={BespokeBloco3Sequence as unknown as React.FC<Record<string, unknown>>}
+        durationInFrames={1140}
+        fps={OFurryTheme.layout.fps}
+        width={OFurryTheme.layout.width}
+        height={OFurryTheme.layout.height}
+        defaultProps={{
+          transparent: false,
+        }}
+      />
+
+      <Composition
+        id="KineticB3-Cena-1-Abrir-Produto"
+        component={Scene1AbrirProduto as unknown as React.FC<Record<string, unknown>>}
+        durationInFrames={150}
+        fps={OFurryTheme.layout.fps}
+        width={OFurryTheme.layout.width}
+        height={OFurryTheme.layout.height}
+        defaultProps={{
+          transparent: true,
+        }}
+      />
+
+      <Composition
+        id="KineticB3-Cena-2-Duas-Coisas"
+        component={Scene2DuasCoisas as unknown as React.FC<Record<string, unknown>>}
+        durationInFrames={90}
+        fps={OFurryTheme.layout.fps}
+        width={OFurryTheme.layout.width}
+        height={OFurryTheme.layout.height}
+        defaultProps={{
+          transparent: true,
+        }}
+      />
+
+      <Composition
+        id="KineticB3-Cena-3-Proteger-Capital"
+        component={Scene3ProtegerCapital as unknown as React.FC<Record<string, unknown>>}
+        durationInFrames={90}
+        fps={OFurryTheme.layout.fps}
+        width={OFurryTheme.layout.width}
+        height={OFurryTheme.layout.height}
+        defaultProps={{
+          transparent: true,
+        }}
+      />
+
+      <Composition
+        id="KineticB3-Cena-4-Buscar-Ganhos"
+        component={Scene4BuscarGanhos as unknown as React.FC<Record<string, unknown>>}
+        durationInFrames={90}
+        fps={OFurryTheme.layout.fps}
+        width={OFurryTheme.layout.width}
+        height={OFurryTheme.layout.height}
+        defaultProps={{
+          transparent: true,
+        }}
+      />
+
+      <Composition
+        id="KineticB3-Cena-5-Ativos-Referencia"
+        component={Scene5AtivosReferencia as unknown as React.FC<Record<string, unknown>>}
+        durationInFrames={90}
+        fps={OFurryTheme.layout.fps}
+        width={OFurryTheme.layout.width}
+        height={OFurryTheme.layout.height}
+        defaultProps={{
+          transparent: true,
+        }}
+      />
+
+      <Composition
+        id="KineticB3-Cena-6-Divisao-Capital"
+        component={Scene6DivisaoCapital as unknown as React.FC<Record<string, unknown>>}
+        durationInFrames={120}
+        fps={OFurryTheme.layout.fps}
+        width={OFurryTheme.layout.width}
+        height={OFurryTheme.layout.height}
+        defaultProps={{
+          transparent: true,
+        }}
+      />
+
+      <Composition
+        id="KineticB3-Cena-7-Renda-Fixa-Motor"
+        component={Scene7RendaFixaMotor as unknown as React.FC<Record<string, unknown>>}
+        durationInFrames={120}
+        fps={OFurryTheme.layout.fps}
+        width={OFurryTheme.layout.width}
+        height={OFurryTheme.layout.height}
+        defaultProps={{
+          transparent: true,
+        }}
+      />
+
+      <Composition
+        id="KineticB3-Cena-8-Teto-Call-Spread"
+        component={Scene8TetoCallSpread as unknown as React.FC<Record<string, unknown>>}
+        durationInFrames={135}
+        fps={OFurryTheme.layout.fps}
+        width={OFurryTheme.layout.width}
+        height={OFurryTheme.layout.height}
+        defaultProps={{
+          transparent: true,
+        }}
+      />
+
+      <Composition
+        id="KineticB3-Cena-9-Inflacao-Corrosao"
+        component={Scene9InflacaoCorrosao as unknown as React.FC<Record<string, unknown>>}
+        durationInFrames={135}
+        fps={OFurryTheme.layout.fps}
+        width={OFurryTheme.layout.width}
+        height={OFurryTheme.layout.height}
+        defaultProps={{
+          transparent: true,
+        }}
+      />
+
+      <Composition
+        id="KineticB3-Cena-10-Perguntas-Decisivas"
+        component={Scene10PerguntasDecisivas as unknown as React.FC<Record<string, unknown>>}
+        durationInFrames={120}
+        fps={OFurryTheme.layout.fps}
+        width={OFurryTheme.layout.width}
+        height={OFurryTheme.layout.height}
+        defaultProps={{
+          transparent: true,
+        }}
+      />
     </>
   );
 };
