@@ -12,6 +12,8 @@ export interface TextRevealProps {
   align?: 'center' | 'left' | 'right';
   delay?: number;
   glow?: boolean;
+  revealMode?: 'mask' | 'punch' | 'strikethrough' | 'stagger';
+  strikethroughDelay?: number;
   style?: React.CSSProperties;
 }
 
@@ -24,16 +26,18 @@ export const TextReveal: React.FC<TextRevealProps> = ({
   align = 'center',
   delay = 0,
   glow = false,
+  revealMode = 'mask',
+  strikethroughDelay = 25,
   style,
 }) => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
 
-  // Ambient layer: subtle continuous drift (zero frozen frame)
+  // Ambient layer: subtle continuous drift (strict zero rotate per ADR-006)
   const ambient = getAmbientDrift(frame, {
-    amplitudeY: 2.0,
-    amplitudeRotate: 0.2,
-    periodFrames: 70,
+    amplitudeY: 0.8,
+    amplitudeRotate: 0.0,
+    periodFrames: 90,
   });
 
   const words = text.split(' ');
@@ -107,49 +111,90 @@ export const TextReveal: React.FC<TextRevealProps> = ({
         }}
       >
         {words.map((word, index) => {
-          const wordDelay = delay + getStaggerDelay(index, 3);
+          const wordDelay = delay + (revealMode === 'mask' || revealMode === 'punch' ? 0 : getStaggerDelay(index, 3));
           const progress = getSpringProgress(frame, fps, wordDelay, MotionPresets.snappy);
 
-          const translateY = interpolate(progress, [0, 1], [40, 0]);
-          const opacity = interpolate(progress, [0, 0.7, 1], [0, 0.9, 1]);
-          const scale = interpolate(progress, [0, 1], [0.92, 1]);
+          // Mask reveal: slides from below baseline (110% -> 0%) inside overflow hidden
+          const maskTranslateY = interpolate(progress, [0, 1], [115, 0]);
+          const standardTranslateY = interpolate(progress, [0, 1], [35, 0]);
+          const opacity = interpolate(progress, [0, 0.4, 1], [0, 0.95, 1]);
 
           const cleanWord = word.replace(/[^a-zA-Z0-9À-ÿ]/g, '').toLowerCase();
           const isHighlighted =
             normalizedHighlights.includes(cleanWord) ||
             (highlightWords.length === 0 && index === words.length - 1 && words.length > 2);
 
+          // Kinetic Strikethrough progress
+          const strikeProgress = interpolate(
+            frame,
+            [strikethroughDelay, strikethroughDelay + 8],
+            [0, 1],
+            { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' }
+          );
+
           return (
             <span
               key={index}
               style={{
                 display: 'inline-flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                fontFamily: selectedFontFamily,
-                fontSize: `${fontSize}px`,
-                fontWeight,
-                lineHeight: OFurryTheme.typography.lineHeights.none,
-                letterSpacing,
-                textTransform: isBadge ? 'uppercase' : undefined,
-                color: isHighlighted ? OFurryTheme.colors.highlightText : OFurryTheme.colors.primary,
-                backgroundColor: isHighlighted ? OFurryTheme.colors.highlightSolid : 'transparent',
-                padding: isHighlighted
-                  ? variant === 'hero'
-                    ? '4px 18px'
-                    : '2px 14px'
-                  : '0px',
-                borderRadius: isHighlighted ? '8px' : '0px',
-                boxShadow: isHighlighted ? OFurryTheme.effects.solidBadgeShadow : undefined,
-                textShadow: !isHighlighted && glow
-                  ? `0 0 30px ${OFurryTheme.colors.accentOrangeAlpha(0.6)}`
-                  : 'none',
-                opacity,
-                transform: `translateY(${translateY}px) scale(${scale})`,
-                willChange: 'transform, opacity',
+                position: 'relative',
+                overflow: revealMode === 'mask' ? 'hidden' : 'visible',
+                paddingTop: '4px',
+                paddingBottom: '4px',
               }}
             >
-              {word}
+              <span
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  position: 'relative',
+                  fontFamily: selectedFontFamily,
+                  fontSize: `${fontSize}px`,
+                  fontWeight,
+                  lineHeight: OFurryTheme.typography.lineHeights.none,
+                  letterSpacing,
+                  textTransform: isBadge ? 'uppercase' : undefined,
+                  color: isHighlighted ? OFurryTheme.colors.highlightText : OFurryTheme.colors.primary,
+                  backgroundColor: isHighlighted ? OFurryTheme.colors.highlightSolid : 'transparent',
+                  padding: isHighlighted
+                    ? variant === 'hero'
+                      ? '4px 18px'
+                      : '2px 14px'
+                    : '0px',
+                  borderRadius: isHighlighted ? '2px' : '0px',
+                  boxShadow: isHighlighted ? OFurryTheme.effects.solidBadgeShadow : undefined,
+                  textShadow: !isHighlighted && glow
+                    ? `0 0 30px ${OFurryTheme.colors.accentOrangeAlpha(0.6)}`
+                    : 'none',
+                  opacity: revealMode === 'mask' ? 1 : opacity,
+                  transform:
+                    revealMode === 'mask'
+                      ? `translateY(${maskTranslateY}%)`
+                      : `translateY(${standardTranslateY}px)`,
+                  willChange: 'transform, opacity',
+                }}
+              >
+                {word}
+
+                {/* Kinetic Strikethrough / Redaction Slash */}
+                {revealMode === 'strikethrough' && (
+                  <span
+                    style={{
+                      position: 'absolute',
+                      left: -4,
+                      right: -4,
+                      top: '52%',
+                      height: variant === 'hero' ? '12px' : '6px',
+                      backgroundColor: isHighlighted ? '#000000' : OFurryTheme.colors.accentOrange,
+                      transformOrigin: 'left center',
+                      transform: `scaleX(${strikeProgress})`,
+                      pointerEvents: 'none',
+                      zIndex: 3,
+                    }}
+                  />
+                )}
+              </span>
             </span>
           );
         })}

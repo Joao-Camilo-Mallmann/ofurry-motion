@@ -68,13 +68,14 @@ export const OFurryTheme = {
 
     // Monumental Editorial Scales (Anti-Mini-Widgets)
     sizes: {
-      hero: 136, // 120-150px
+      hero: 140, // 130-160px
       title: 80,
       subtitle: 40,
       body: 26,
       caption: 18,
       badge: 16,
-      numberHero: 200, // 180-220px
+      microLabel: 14, // Swiss high-contrast tabular label
+      numberHero: 220, // 200-240px
       numberCard: 110,
       numberBadge: 64,
     },

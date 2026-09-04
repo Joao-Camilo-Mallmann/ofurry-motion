@@ -5,7 +5,9 @@ import { getCompositions, renderMedia, RenderMediaOnProgress } from '@remotion/r
 
 interface RenderOptions {
   format: 'prores' | 'webm' | 'mp4';
-  id?: string;
+  video?: string;
+  scene?: string;
+  full?: boolean;
   outDir: string;
   entryPoint: string;
 }
@@ -13,8 +15,10 @@ interface RenderOptions {
 function parseArgs(): RenderOptions {
   const args = process.argv.slice(2);
   let format: 'prores' | 'webm' | 'mp4' = 'prores';
-  let id: string | undefined = undefined;
-  let outDir = path.resolve(process.cwd(), 'out/scenes');
+  let video: string | undefined = undefined;
+  let scene: string | undefined = undefined;
+  let full: boolean = false;
+  let customOutDir: string | undefined = undefined;
 
   for (const arg of args) {
     if (arg.startsWith('--format=')) {
@@ -22,16 +26,45 @@ function parseArgs(): RenderOptions {
       if (f === 'prores' || f === 'webm' || f === 'mp4') {
         format = f;
       }
+    } else if (arg.startsWith('--video=')) {
+      video = arg.split('=')[1].trim();
+    } else if (arg.startsWith('--scene=')) {
+      scene = arg.split('=')[1].trim();
     } else if (arg.startsWith('--id=')) {
-      id = arg.split('=')[1].trim();
+      scene = arg.split('=')[1].trim();
+    } else if (arg === '--full') {
+      full = true;
     } else if (arg.startsWith('--outDir=')) {
-      outDir = path.resolve(process.cwd(), arg.split('=')[1].trim());
+      customOutDir = path.resolve(process.cwd(), arg.split('=')[1].trim());
+    } else if (!arg.startsWith('-')) {
+      // Positional argument: first is video, second is scene
+      if (!video) {
+        video = arg.trim();
+      } else if (!scene) {
+        scene = arg.trim();
+      }
     }
+  }
+
+  // If rendering full sequence and format was not explicitly set to prores/webm, default to mp4
+  if (full && !args.some((a) => a.startsWith('--format='))) {
+    format = 'mp4';
+  }
+
+  let outDir: string;
+  if (customOutDir) {
+    outDir = customOutDir;
+  } else if (video) {
+    outDir = path.resolve(process.cwd(), 'videos', video, 'out');
+  } else {
+    outDir = path.resolve(process.cwd(), 'out/scenes');
   }
 
   return {
     format,
-    id,
+    video,
+    scene,
+    full,
     outDir,
     entryPoint: path.resolve(process.cwd(), 'src/index.ts'),
   };
@@ -40,11 +73,18 @@ function parseArgs(): RenderOptions {
 async function main() {
   const options = parseArgs();
   console.log('====================================================');
-  console.log('🎬 OFurry Motion Scene Batch Renderer');
+  console.log('🎬 OFurry Motion Renderer (Video-Scoped Architecture)');
+  if (options.video) {
+    console.log(`📁 Target Video:  ${options.video.toUpperCase()}`);
+  }
   console.log(`📦 Output format: ${options.format.toUpperCase()} (Alpha: ${options.format !== 'mp4'})`);
-  console.log(`📁 Destination:   ${options.outDir}`);
-  if (options.id) {
-    console.log(`🎯 Target Scene:  ${options.id}`);
+  console.log(`💾 Destination:   ${options.outDir}`);
+  if (options.full) {
+    console.log(`🎥 Mode:          Full Sequence (full.${options.format === 'prores' ? 'mov' : options.format})`);
+  } else if (options.scene) {
+    console.log(`🎯 Target Scene:  ${options.scene}`);
+  } else {
+    console.log(`🎞️ Mode:          All Scenes for ${options.video ?? 'All Videos'}`);
   }
   console.log('====================================================\n');
 
@@ -60,35 +100,73 @@ async function main() {
   });
   console.log(`✓ Bundled in ${((Date.now() - bundleStartTime) / 1000).toFixed(1)}s\n`);
 
-  console.log('🔍 Discovering scene compositions...');
+  console.log('🔍 Discovering compositions...');
   const compositions = await getCompositions(bundleLocation);
-  
-  // Filter for scene-level compositions
-  let sceneCompositions = compositions.filter(
-    (c) => c.id.includes('-Cena-') || c.id.startsWith('Scene-') || c.id.startsWith('COE-Cena-') || c.id.startsWith('Promessa-Cena-')
-  );
 
-  if (options.id) {
-    const target = options.id.toLowerCase();
-    sceneCompositions = sceneCompositions.filter((c) => {
+  let targetCompositions = compositions;
+
+  // 1. Full Sequence Mode
+  if (options.full) {
+    const videoTarget = (options.video ?? '').toLowerCase();
+    targetCompositions = compositions.filter((c) => {
       const idLower = c.id.toLowerCase();
-      // Match by exact composition ID, scene number index, or substring
-      return (
-        idLower === target ||
-        idLower.includes(target) ||
-        idLower.includes(`cena-${target}-`) ||
-        idLower.includes(`cena-${target}`) ||
-        idLower.includes(`cena-0${target}-`)
-      );
+      if (videoTarget) {
+        return (
+          idLower === `${videoTarget}-full-sequence` ||
+          idLower === `${videoTarget}composition` ||
+          idLower.startsWith(`${videoTarget}-full`)
+        );
+      }
+      return idLower.includes('full-sequence') || idLower.includes('composition');
     });
+  } else {
+    // 2. Scene-Level Compositions Filter
+    targetCompositions = compositions.filter((c) => {
+      const idLower = c.id.toLowerCase();
+      // Exclude full sequences unless specifically targeted
+      if (idLower.includes('full-sequence') || idLower.endsWith('composition') || idLower === 'placeholder') {
+        return false;
+      }
+      if (options.video) {
+        return idLower.startsWith(`${options.video.toLowerCase()}-`);
+      }
+      return idLower.includes('-cena-') || idLower.startsWith('scene-') || idLower.includes('cena');
+    });
+
+    // 3. Filter specific scene ID/number if provided
+    if (options.scene) {
+      const target = options.scene.toLowerCase();
+      const numTarget = target.replace(/^0+/, '').padStart(2, '0');
+      
+      const exactOrIndexMatches = targetCompositions.filter((c) => {
+        const idLower = c.id.toLowerCase();
+        return (
+          idLower === target ||
+          idLower.includes(`-cena-${numTarget}-`) ||
+          idLower.includes(`-cena-${target}-`) ||
+          idLower.endsWith(`-${target}`)
+        );
+      });
+
+      if (exactOrIndexMatches.length > 0) {
+        targetCompositions = exactOrIndexMatches;
+      } else {
+        targetCompositions = targetCompositions.filter((c) => {
+          const idLower = c.id.toLowerCase();
+          return idLower.includes(target);
+        });
+      }
+    }
   }
 
-  if (sceneCompositions.length === 0) {
-    console.error(`❌ No compositions found matching query: ${options.id || 'all'}`);
+  if (targetCompositions.length === 0) {
+    console.error(`❌ No compositions found matching criteria: video=${options.video || 'any'}, scene=${options.scene || 'all'}, full=${options.full}`);
+    console.log('Available compositions were:');
+    compositions.forEach((c) => console.log(`  - ${c.id}`));
     process.exit(1);
   }
 
-  console.log(`Found ${sceneCompositions.length} scene(s) to render.\n`);
+  console.log(`Found ${targetCompositions.length} composition(s) to render.\n`);
 
   // Codec and container configurations
   const codecConfig = {
@@ -113,10 +191,12 @@ async function main() {
     },
   }[options.format];
 
-  for (let i = 0; i < sceneCompositions.length; i++) {
-    const comp = sceneCompositions[i];
-    const outputFile = path.join(options.outDir, `${comp.id}.${codecConfig.extension}`);
-    console.log(`▶ [${i + 1}/${sceneCompositions.length}] Rendering: ${comp.id}`);
+  for (let i = 0; i < targetCompositions.length; i++) {
+    const comp = targetCompositions[i];
+    const fileName = options.full ? `full.${codecConfig.extension}` : `${comp.id}.${codecConfig.extension}`;
+    const outputFile = path.join(options.outDir, fileName);
+
+    console.log(`▶ [${i + 1}/${targetCompositions.length}] Rendering: ${comp.id}`);
     console.log(`  ⏱ Duration: ${comp.durationInFrames} frames (${(comp.durationInFrames / comp.fps).toFixed(1)}s)`);
     console.log(`  💾 Output:   ${outputFile}`);
 
@@ -143,7 +223,7 @@ async function main() {
     console.log(`\r  ✓ Complete in ${durationSec}s                               \n`);
   }
 
-  console.log('🎉 All scenes rendered successfully!');
+  console.log('🎉 Render job completed successfully!');
 }
 
 main().catch((err) => {

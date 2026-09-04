@@ -39,9 +39,20 @@ Every scene must be grounded in the motion design principles from `/motion-desig
 - **Three Motion Layers**:
   1. **Primary Layer**: Main hero text (`110px-150px`) / monumental counter (`180px-220px`) / chart curve.
   2. **Secondary Layer**: Neon highlight badge (`#FF9900` with `#000000` text), Lucide icon expanding ring, technical leader lines.
-  3. **Ambient Layer**: Tech framing L-corners, precision crosshairs, and subtle sinusoidal drift (±2px).
+  3. **Ambient Layer**: Subdued framing markers and micro-push drift (zero floaty wobble/rotation).
 
-### 2. Always Use `/explore-openspec` for Planning
+### 2. Always Incorporate `/no-ai-slop` (Mandatory Anti-Slop Editorial Filter)
+
+Every on-screen word, label, and visual metaphor must pass through the `/no-ai-slop` filter before appearing on screen:
+
+- **Zero Throat-Clearing & Faux-Insights**: Cut "O que ninguém te conta:", "A verdade sobre...", "Entendendo o mercado:", "Alerta essencial:". Go straight to the brutal fact.
+- **Concrete Over Abstract**: Replace abstract buzzwords ("Maximização de Retornos", "Gestão Eficiente de Risco", "Solução Transformadora") with hard numbers and visceral mechanisms ("TAXA 2.5%", "85% PRESO", "ZERO RETORNO", "TETO 12%").
+- **Zero Formatting Slop & Fake Tech Jargon**: BANNED decorative sci-fi tags ("SYS.SCAN // 03:00", "REGULAMENTO // CLÁUSULA OFICIAL", "DATA_STREAM // 0x4F"). If it doesn't communicate an actual legal/financial mechanism from the script, it is AI slop.
+- **Banned Buzzwords**: Banned outright from screen text: *game changer, transformador, revolucionário, robusto, inovador, ecossistema, alavancar, maximizar, mitigar, supercharge, tapete, reino, facetas*.
+- **Motion Portability Test**: If a visual element or text lockup could move unchanged to a generic SaaS template or crypto landing page, it is slop. It must directly manifest the specific financial conflict of that exact 3-second phrase.
+- **Strict 1-to-3 Words Limit**: Screen is not a teleprompter or summary slide. Extract strictly 1 to 3 punch keywords.
+
+### 3. Always Use `/explore-openspec` for Planning
 
 When exploring new video ideas, structuring long scripts into scenes, or deciding on visual metaphors:
 
@@ -90,33 +101,46 @@ Para cada cena decomposta:
 - **Limite de 2 a 4 Palavras:** Tipografia monumental (110px a 150px) em `Archivo Black`, `Bebas Neue` ou `Syne`.
 - **Metáforas Físicas Diretas:** Em vez de "cards com tópicos", use impacto mecânico (fatiamento de bloco, colisão no teto, queima/derretimento pela inflação).
 
+### 5. Arquitetura Escopada por Vídeo & Contexto Dinâmico (`videos/<video>/`)
+
+Cada produção de vídeo reside isolada em `videos/<video-name>/`:
+- `roteiro.md`: Narração completa com marcações e timestamps.
+- `scenes/`: Cenas modulares numeradas (`01-nome.ts`, `02-nome.tsx`) e manifesto `index.ts`.
+- `out/`: Destino exclusivo das renderizações Alpha (`.webm`, `.mov`, `full.mp4`).
+
+**Fluxo para Solicitação de Cena por Frase:**
+1. **Contexto Narrativo On-Demand:** Ao receber uma frase ou trecho, o Diretor inspeciona imediatamente `videos/<video-name>/roteiro.md`, identifica o que veio antes e o que vem depois, determinando tom, contraste e tensão física sem criar arquivos intermediários de resumo.
+2. **Extração Punch:** Filtra 1 a 3 palavras-chave pelo `/no-ai-slop`.
+3. **Escrita Modular:** Gera o arquivo `videos/<video-name>/scenes/<XX>-<nome>.ts` (ou `.tsx`) e o registra no `index.ts`.
+4. **Comando Imediato:** Apresenta o plano em prosa e fornece o comando exato de renderização:
+   `bun run render:video <video> --scene=<XX> --format=webm`
+
 ---
 
-## 🏆 The 10 Golden Rules of OFurry Motion Design (ADR-002 + ADR-004 + ADR-005)
+## 🏆 The 10 Golden Rules of OFurry Motion Design (ADR-002 + ADR-004 + ADR-005 + ADR-006)
 
 | #   | Rule                                       | Directive                                                                                                                                                                                                                                                                                                               |
 | --- | ------------------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| 🎯  | **1. Minimal Text (2-4 Words)**            | **NEVER** put full sentences or paragraphs on screen. Extraia apenas 2 a 4 palavras-chave de âncora ou métricas numéricas. A voz conta a história; a tela entrega o gancho visual de autoridade.                                                                                                                        |
-| 📏  | **2. Monumental Scale**                    | Hero titles occupy **70%–90%** of screen width (110px–150px font size). Numbers range from **180px to 220px**. Command instant attention in the first 3 seconds.                                                                                                                                                        |
-| 🎨  | **3. Typography by Role**                  | • `archivo` (`Archivo Black`) ou `bebas` (`Bebas Neue`): Ganchos de impacto e títulos hero<br>• `syne` (`Syne`): Títulos conceituais e editoriais modernos<br>• `space-grotesk` (`Space Grotesk`): Métricas, números, moedas e dados técnicos<br>• `jakarta` (`Plus Jakarta Sans`): Subtítulos de apoio e labels limpos |
-| 🖼️  | **4. Anti-"AI Template" / Anti-Dashboard** | Fundo Preto (#000000) com transparência Alpha real, Tarjas Sólidas Neon Laranja (`#FF9900`) com texto preto (`#000000`), miras técnicas (`crosshairs`) e cantos `L-corners`. **Proibido** nuvens de blur genéricas e caixas/cards cinzas opacos.                                                                        |
-| 🎬  | **5. Native Alpha Channel**                | Renderização com fundo transparente real em **ProRes 4444 (`.mov`)** ou **WebM**. Permite sobreposição direta na timeline do Premiere/DaVinci sem chroma key.                                                                                                                                                           |
-| ⚡  | **6. Punch & Hold Physics**                | **Entrada (0-15 frames):** Entrada enérgica com spring amortecido (_Punch_).<br>**Retenção (15-final):** Congelamento sólido para leitura perfeita (_Hold_).<br>**Micro-Drift:** Oscilação senoidal contínua (±2px) para manter a cena viva.                                                                            |
+| 🎯  | **1. Strategic Punch Text (1-3 Words)**    | **NUNCA** coloque parágrafos, frases inteiras ou subtítulos explicativos na tela. Filtre por `/no-ai-slop`. Extraia apenas 1 a 3 palavras-chave de soco ou métricas contundentes. A voz conta a história; a tela entrega autoridade pura.                                                                            |
+| 📏  | **2. Monumental Scale**                    | Títulos hero ocupam **70%–90%** da largura útil da tela (130px–160px). Números chegam a **200px a 240px**. Comande atenção instantânea nos primeiros 2 segundos da fala.                                                                                                                                              |
+| 🎨  | **3. Typography by Role**                  | • `archivo` (`Archivo Black`) ou `bebas` (`Bebas Neue`): Ganchos de impacto e títulos hero<br>• `syne` (`Syne`): Títulos conceituais e editoriais modernos<br>• `space-grotesk` (`Space Grotesk`): Métricas, números, moedas e dados técnicos tabulares<br>• `jakarta` (`Plus Jakarta Sans`): Micro-labels de alta precisão (14px) |
+| 🖼️  | **4. Anti-"AI Slop" / Zero Cards**        | **Proibido:** Cards cinzas (`rgba(20,20,20,...)`), bordas arredondadas, sombras de container, nuvens de blur e grids de sci-fi por padrão. **Exigido:** Tipografia monumental solta flutuando diretamente sobre Alpha nativo, tarjas sólidas neon `#FF9900` com texto preto `#000000` e hairlines finos de 1px.     |
+| 🎬  | **5. Native Alpha Channel**                | Renderização nativa com fundo transparente real em **ProRes 4444 (`.mov`)** ou **WebM**. Permite sobreposição direta sobre vídeo no Premiere/DaVinci sem nenhum chroma-key.                                                                                                                                           |
+| ⚡  | **6. Impact & Lock Physics (Anti-Wobble)** | **Entrada (0-12 frames):** Mask Reveal da linha de base (`overflow: hidden`) ou snap seco com spring firme.<br>**Retenção (12-final):** Trava sólida no lugar (*Lock*) para leitura sem esforço.<br>**Anti-Wobble:** Rotação senoidal PROIBIDA (`amplitudeRotate: 0`). Apenas micro-push unidirecional suave.       |
 | ⚓  | **7. Anchored Composition (Zero Orphans)** | Nenhum elemento secundário flutua solto. Todo elemento filho deve declarar `anchorTo` apontando para o elemento primário, amarrado por uma ponte de composição (`connector-line`, `overlap`, `color-trail`, `none-justified`).                                                                                          |
 | 📐  | **8. Relative Scaling (`sizeRatio`)**      | Ícones e elementos secundários derivam seu tamanho do elemento dominante (55%-75% da altura de texto hero, 35%-45% de números hero).                                                                                                                                                                                    |
-| 🏛️  | **9. 6 Layout Silhouettes Rotation**       | Cenas consecutivas nunca repetem a mesma silhueta. Alterne entre `monumental-hero`, `horizontal-split`, `stacked-steps`, `blueprint-grifo`, `hud-radial` e `split-authority`.                                                                                                                                           |
-| 💥  | **10. Dramatic Kinetic Metaphors**         | Transforme a tensão da fala em movimento físico real (fatiamento a laser, colisão violenta contra teto de rentabilidade, split de barras, corrosão inflacionária).                                                                                                                                                      |
+| 🏛️  | **9. 5 Strategic Typographic Archetypes**   | Rotação contínua entre os 5 arquétipos editoriais para evitar repetição: `monumental-punch`, `metric-authority`, `strike-redaction`, `binary-tension` e `forensic-callout`.                                                                                                                                            |
+| 💥  | **10. Dramatic Kinetic Metaphors**         | Transforme a tensão da fala em movimento físico visceral (risco de caneta/redaction desmascarando golpe, colisão contra barreira de teto, fatiamento a laser, corrosão inflacionária).                                                                                                                                  |
 
 ---
 
-## 🏛️ Catalog of 6 Layout Silhouettes
+## 🏛️ Catálogo dos 5 Arquétipos Tipográficos Estratégicos
 
-1. **`monumental-hero`**: Massive centered title (70-90% width) with tightly attached badge and overlapping icon lockup.
-2. **`horizontal-split`**: 50/50 or 60/40 comparative divide with vertical center technical divider and bridging connector line.
-3. **`stacked-steps`**: Vertical progression hierarchy with step indicator badges and vertical leader lines.
-4. **`blueprint-grifo`**: Technical document simulation with neon orange highlighter block and orthogonal leader callout.
-5. **`hud-radial`**: Central anchor core with concentric orbital laser rings and interconnected peripheral nodes.
-6. **`split-authority`**: Asymmetric 70/30 division where a colossal 200px counter breaches the division line into the context panel.
+1. **`monumental-punch`**: 1 a 3 palavras massivas (130-160px), Mask Reveal da linha de base, com ou sem tarja sólida neon `#FF9900` deslizante. Foco absoluto no Alpha.
+2. **`metric-authority`**: 1 número colossal (200-240px) em `Space Grotesk` com micro-label tabular de 14px posicionado com contraste extremo de escala. Sem caixas ou molduras.
+3. **`strike-redaction`**: Metáfora de desmascaramento. Palavra A (promessa) aparece e, em seguida, uma tarja sólida corta a palavra e revela a Palavra B (realidade/risco).
+4. **`binary-tension`**: Comparação 50/50 ou 60/40 limpa, com dois termos contrapostos divididos exclusivamente por uma hairline vertical fina de 1px. Zero containers.
+5. **`forensic-callout`**: Parágrafo curto autêntico de contrato/regulamento onde uma tarja neon grifa cirurgicamente apenas as 2 palavras da armadilha, puxando uma linha líder para a métrica real.
 
 ---
 
@@ -163,8 +187,8 @@ Para cada cena decomposta:
 ## 🖥️ Comandos de Execução Rápida
 
 - **Remotion Studio**: `bun run studio`
-- **Renderizar Todas as Cenas em WebM Alpha**: `bun run render:scenes:webm`
-- **Renderizar Todas as Cenas em ProRes 4444 Alpha**: `bun run render:scenes`
-- **Renderizar Cena Única**: `bun run render:scene -- --id=<nome-ou-numero>`
-- **Renderizar Sequência Unificada**: `bun run render:bloco3:webm` / `bun run render:bloco3`
+- **Renderizar Cenas do Vídeo em WebM Alpha**: `bun run render:video <video-id> --format=webm`
+- **Renderizar Cenas do Vídeo em ProRes 4444 Alpha**: `bun run render:video <video-id> --format=prores`
+- **Renderizar Cena Específica**: `bun run render:video <video-id> --scene=<id-ou-numero> --format=webm`
+- **Renderizar Vídeo Completo**: `bun run render:video <video-id> --full`
 - **Verificar Tipos TypeScript**: `bun run build`

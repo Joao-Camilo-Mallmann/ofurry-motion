@@ -1,16 +1,20 @@
 # remotion-composition-pipeline Specification
 
 ## Purpose
-Defines the Remotion composition architecture, studio previewing, and render pipelines (full video and standalone scene mini-videos with transparent alpha channel).
+Defines the Remotion composition architecture, dynamic video package discovery, studio previewing, and video-scoped render pipelines with native transparent alpha channels.
 
 ## Requirements
 
 ### Requirement: Remotion Root and SceneComposer Orchestration
-The system SHALL provide a Remotion `Root` component and a `SceneComposer` that receives an array of `SceneSpec` items, sequences them along the video timeline, and renders the corresponding primitives using anchored layout containers, relative scaling, and composition bridge connectors.
+The system SHALL provide a Remotion `Root` component that dynamically iterates over registered video packages from `src/videos/registry.ts`, registering full-sequence compositions and individual standalone scene compositions with native transparent Alpha channels without requiring manual changes to `Root.tsx`.
 
-#### Scenario: Rendering sequenced scenes in timeline
-- **WHEN** `Root` receives a list of scenes
-- **THEN** it registers a composition sequenced at 30 fps, transitioning smoothly between each scene sequence with punch & hold physics.
+#### Scenario: Rendering sequenced scenes from registered video package
+- **WHEN** `Root` mounts registered video packages
+- **THEN** it registers a full sequence composition for each video at 30 fps, prefixing composition IDs with `<video-id>-Full-Sequence`.
+
+#### Scenario: Registering standalone scene mini-videos with Alpha channel
+- **WHEN** `Root` iterates over scenes in a video package
+- **THEN** it registers each scene as an independent composition with `transparent: true` and name `<video-id>-Cena-<XX>-<scene-id>`.
 
 #### Scenario: Rendering anchored elements with composition bridges
 - **WHEN** `SceneComposer` renders a scene containing secondary primitives anchored to a dominant element with a `connector-line` or `overlap` bridge
@@ -21,16 +25,16 @@ The system SHALL provide a Remotion `Root` component and a `SceneComposer` that 
 - **THEN** it dynamically mounts the corresponding visual layout architecture.
 
 ### Requirement: Local Preview and Render Support
-The system SHALL support previewing animations in Remotion Studio, rendering full video compositions, and batch rendering individual scenes as standalone video files with transparent alpha channels (`.mov` ProRes 4444 and `.webm`) or MP4 via Bun scripts.
+The system SHALL support previewing animations in Remotion Studio, rendering full video compositions, and video-scoped rendering of scenes directly into `videos/<video>/out/` via Bun CLI commands.
 
 #### Scenario: Running Remotion Studio preview
 - **WHEN** developer runs `bun run studio`
-- **THEN** Remotion Studio launches with hot-reload and visual timeline controls for all full sequences and standalone scene compositions.
+- **THEN** Remotion Studio launches displaying compositions organized by video package with hot-reload and visual timeline controls.
 
-#### Scenario: Exporting full MP4 video
-- **WHEN** developer runs `bun run render:coe` or `bun run render:full`
-- **THEN** Remotion invokes Chrome Headless and exports a 1920x1080 MP4 video to the `out/` directory.
+#### Scenario: Exporting video-scoped scenes with Alpha channel
+- **WHEN** developer runs `bun run render:video <video-id> [--scene=<id>] [--format=prores|webm]`
+- **THEN** Remotion renders the requested scene(s) with transparent alpha directly into `videos/<video-id>/out/`.
 
-#### Scenario: Exporting standalone scene mini-videos with Alpha channel
-- **WHEN** developer runs `bun run render:scenes` or `bun run render:scene`
-- **THEN** Remotion renders each scene as an independent video file with alpha transparency to `out/scenes/` using ProRes 4444 (`.mov`) or WebM.
+#### Scenario: Exporting legacy or full video composition
+- **WHEN** developer runs `bun run render:video <video-id> --full`
+- **THEN** Remotion invokes Chrome Headless and exports the full video composition to `videos/<video-id>/out/full.mp4`.

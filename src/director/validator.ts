@@ -65,6 +65,49 @@ export function repairAnchors(scene: SceneSpec): SceneSpec {
 }
 
 /**
+ * ADR-006 Anti-Slop Filter: Strips throat-clearing openers, truncates verbose text,
+ * and eliminates generic dashboard/AI patterns from scenes.
+ */
+export function cleanAntiSlop(scene: SceneSpec): SceneSpec {
+  if (!scene.elements) return scene;
+
+  const throatClearingPatterns = [
+    /^o que ninguém te conta:?\s*/i,
+    /^a verdade sobre:?\s*/i,
+    /^entendendo o mercado:?\s*/i,
+    /^alerta essencial:?\s*/i,
+    /^atenção investidor:?\s*/i,
+  ];
+
+  const cleanedElements = scene.elements.map((el) => {
+    if (el.type === 'text') {
+      let cleanedText = el.text;
+      for (const pattern of throatClearingPatterns) {
+        cleanedText = cleanedText.replace(pattern, '');
+      }
+
+      // If text exceeds 4 words on hero/monumental punch, keep top 3 words
+      const words = cleanedText.trim().split(/\s+/);
+      if (words.length > 4 && (el.variant === 'hero' || scene.layout === 'monumental-punch')) {
+        cleanedText = words.slice(0, 3).join(' ');
+      }
+
+      return {
+        ...el,
+        text: cleanedText,
+        revealMode: el.revealMode ?? (scene.layout === 'monumental-punch' ? 'mask' : 'mask'),
+      };
+    }
+    return el;
+  });
+
+  return {
+    ...scene,
+    elements: cleanedElements,
+  };
+}
+
+/**
  * Generates a safe, beautifully styled fallback SceneSpec
  * adhering to ADR-004 Anchored Composition when LLM output is malformed.
  */
@@ -163,9 +206,10 @@ export function validateSceneSpec(
 
   if (result.success) {
     const repaired = repairAnchors(result.data);
+    const cleaned = cleanAntiSlop(repaired);
     return {
       success: true,
-      data: repaired,
+      data: cleaned,
     };
   }
 

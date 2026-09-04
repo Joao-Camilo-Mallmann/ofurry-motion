@@ -19,52 +19,72 @@ Whenever designing, writing, animating, or reviewing motion scenes and Remotion 
 - **Three Pillars**:
   1. *Emotional Intent*: Define the target emotion (Urgency/Alert, Tech Authority, Optimism/Growth, Critical Warning) before writing code.
   2. *Visual Narrative*: Follow Setup (punch entry) → Action (reading hold) → Resolution (continuous micro-drift).
-  3. *Motion Craft*: Use damped springs (`snappy`, `smooth-draw`), never linear spatial motion, and maintain continuous subtle sinusoidal drift (±2px).
+  3. *Motion Craft*: Use damped springs (`snappy`, `smooth-draw`), never linear spatial motion, and eliminate floaty angular wobble (`amplitudeRotate: 0`).
 - **Three Motion Layers**:
-  - *Primary*: Monumental typography (`110px-150px`) or hero counter (`180px-220px`).
-  - *Secondary*: Solid neon orange highlight badges (`#FF9900` with `#000000` text), icon expanding laser rings.
-  - *Ambient*: Tech framing brackets (`L-corners`), precision crosshairs, and alpha grid.
+  - *Primary*: Monumental typography (`130px-160px`) or hero counter (`200px-240px`).
+  - *Secondary*: Solid neon orange highlight badges (`#FF9900` with `#000000` text), kinetic redaction/strike lines.
+  - *Ambient*: Pristine Alpha channel (opt-in technical markers only when forensic).
 
-### 3. Always Use `/explore-openspec` (OpenSpec Explore) for Planning & Brainstorming
+### 3. Always Incorporate `/no-ai-slop` (Mandatory Anti-Slop Filter)
+Whenever distilling script narration into on-screen text, headlines, and kinetic metaphors:
+- **Zero Throat-Clearing & Faux-Insights**: Cut "O que ninguém te conta:", "A verdade sobre...", "Entendendo o mercado:". Go straight to the brutal fact.
+- **Concrete Over Abstract**: Prefer hard numbers, blunt nouns, and direct active verbs ("TAXA 2.5%", "85% PRESO", "ZERO RETORNO").
+- **Zero Formatting Slop**: BANNED decorative sci-fi tags ("SYS.SCAN // 03:00", "REGULAMENTO // CLÁUSULA").
+- **Motion Portability Test**: Reject widgets and cards that could fit generic templates. Every element must physically manifest the specific script mechanism.
+- **Strict 1-to-3 Words Limit**: Extract strictly 1 to 3 punch keywords per scene.
+
+### 4. Always Use `/explore-openspec` (OpenSpec Explore) for Planning & Brainstorming
 When exploring new video scripts, structuring multi-scene narration, or discovering visual metaphors:
 - Use `/explore-openspec` (`openspec-explore`) to brainstorm the narrative structure, compare visual archetypes, and validate key visual anchors before generating or implementing scene code.
 
+### 5. Video-Scoped Organization & On-Demand Script Context (`videos/<video>/`)
+Every video project is an isolated, self-contained workspace inside `videos/<video-name>/`:
+```text
+videos/<video-name>/
+  ├── roteiro.md         # Full script narration with narrative markers
+  ├── scenes/            # Modular scene files (01-*.ts, 02-*.tsx) + index.ts
+  └── out/               # Exported media (.webm / .mov / full.mp4)
+```
+- **Dynamic On-Demand Script Contextualization**: When generating an animation for a specific narration phrase, read `videos/<video-name>/roteiro.md` on-demand to locate the phrase and inspect the surrounding narrative context (what comes immediately before and after). Do not create redundant intermediate summary files. Use this context to determine dramatic tension, contrast, and physical visual metaphors.
+- **Modular Scene Generation**: Write each scene into `videos/<video-name>/scenes/<XX>-<name>.ts` (or `.tsx`) and aggregate it in `videos/<video-name>/scenes/index.ts`.
+- **Automatic Remotion Discovery**: All registered videos in `src/videos/registry.ts` automatically mount in Remotion Studio as `<video-id>-Full-Sequence` and `<video-id>-Cena-<XX>-<scene-id>`.
+
 ---
 
-## 🏆 The 10 Golden Rules of the OFurry Engine (ADR-002 + ADR-004 + ADR-005)
+## 🏆 The 10 Golden Rules of the OFurry Engine (ADR-002 + ADR-004 + ADR-005 + ADR-006)
 
-1. **Minimal Text (2-4 Words)**: Never display full sentences or paragraphs. Extract only 2 to 4 anchor keywords or metrics. Voice tells the story; screen provides visual authority.
-2. **Monumental Scale**: Hero titles occupy 70%-90% screen width (110px-150px). Numbers reach 180px-220px.
+1. **Strategic Punch Text (1-3 Words)**: Never display full sentences, paragraphs, or explanatory subtitles. Filter all text through `/no-ai-slop`.
+2. **Monumental Scale**: Hero titles occupy 70%-90% screen width (130px-160px). Numbers reach 200px-240px.
 3. **Typography by Role**:
    - `archivo` (`Archivo Black`) or `bebas` (`Bebas Neue`): Hero hook titles.
    - `syne` (`Syne`): Conceptual modern editorial titles.
    - `space-grotesk` (`Space Grotesk`): Metrics, numbers, currencies, technical data.
-   - `jakarta` (`Plus Jakarta Sans`): Clean subtitles and labels.
-4. **Anti-"AI Template" / Anti-Dashboard Aesthetics**: High contrast solid black (#000000), solid neon orange blocks (#FF9900) with pure black text (#000000), precision crosshairs, zero generic floating blur blobs, and zero opaque SaaS dashboard cards.
+   - `jakarta` (`Plus Jakarta Sans`): Micro-labels de alta precisão (14px).
+4. **Anti-"AI Slop" / Zero Cards**: High contrast solid black (#000000), solid neon orange blocks (#FF9900) with pure black text (#000000), zero grey background cards (`rgba(20,20,20,...)`), zero container boxes, zero generic blur clouds, zero default grids.
 5. **Native Alpha Channel**: Transparent background output in ProRes 4444 (`.mov`) or WebM.
-6. **Punch & Hold Physics**: Snappy damped spring entry (frames 0-15), solid hold for effortless reading, and continuous subtle micro-drift (±2px).
-7. **Anchored Composition (Zero Orphans)**: Every secondary element (icon, metric, label) must declare `anchorTo` and `compositionBridge` (`connector-line`, `overlap`, `color-trail`, `none-justified`) tied to the dominant anchor element.
-8. **Relative Proportional Scaling (`sizeRatio`)**: Icons scale relative to the dominant anchor (55%-75% of text hero height; 35%-45% of number hero height).
-9. **6 Geometrically Distinct Silhouettes**: Prevent repetition across scenes by rotating between `monumental-hero`, `horizontal-split`, `stacked-steps`, `blueprint-grifo`, `hud-radial`, and `split-authority`.
-10. **Dramatic Kinetic Metaphors**: Translate narrative tension into direct physical kinematics (laser slicing, ceiling collisions with sparks, split flows, asset decay, and explosive pulse locks) rather than static slides.
+6. **Impact & Lock Physics (Anti-Wobble)**: Mask Reveal from baseline or snappy spring entry (frames 0-12), solid lock hold for effortless reading, zero rotational wobble.
+7. **Anchored Composition (Zero Orphans)**: Every secondary element must declare `anchorTo` and `compositionBridge` (`connector-line`, `overlap`, `color-trail`, `none-justified`) tied to the dominant anchor element.
+8. **Relative Proportional Scaling (`sizeRatio`)**: Secondary elements derive size from the dominant anchor (55%-75% of text hero height; 35%-45% of number hero height).
+9. **5 Strategic Typographic Archetypes**: Continuous rotation between `monumental-punch`, `metric-authority`, `strike-redaction`, `binary-tension`, and `forensic-callout`.
+10. **Dramatic Kinetic Metaphors**: Translate narrative tension into direct physical kinematics (strikethrough redaction slicing false promises, ceiling collisions with sparks, split flows, asset decay, and explosive pulse locks).
 
 ---
 
 ## 🔄 Human-in-the-Loop Production Workflow (5 Steps)
 
-1. **Granular Breakdown & Kinetic Metaphors**: Decompose script phrase by phrase (3-5s per mini-scene) and identify physical motion metaphors.
+1. **Granular Breakdown & Kinetic Metaphors**: Decompose script phrase by phrase (3-5s per mini-scene), reading `videos/<video>/roteiro.md` to extract narrative tension and identify physical motion metaphors.
 2. **Dynamic Complexity Judgment**: Decide direct resolution vs subagent delegation.
 3. **Prose Validation Checkpoint**: Present human-readable scan-friendly plan to user for approval.
-4. **Technical Authoring & Studio Preview**: Author `SceneSpec` / bespoke motion components and preview in Remotion Studio (`bun run studio`).
-5. **Final Alpha Render**: Batch export transparent ProRes 4444 (`.mov`) or WebM mini-videos into `out/scenes/`.
+4. **Modular Authoring & Studio Preview**: Write scene file in `videos/<video>/scenes/`, update `index.ts`, and preview in Remotion Studio (`bun run studio`).
+5. **Final Alpha Render**: Export transparent ProRes 4444 (`.mov`) or WebM mini-videos into `videos/<video>/out/` via `bun run render:video <video> --scene=<XX> --format=webm|prores`.
 
 ---
 
 ## 🚀 Quick Execution Commands
 
 - **Launch Remotion Studio**: `bun run studio` (Opens at `http://localhost:3000`)
-- **Render All Scenes with Alpha (ProRes 4444)**: `bun run render:scenes`
-- **Render All Scenes with Alpha (WebM)**: `bun run render:scenes:webm`
-- **Render Single Scene Quickly**: `bun run render:scene -- --id=<scene-id>`
-- **Render Unified Full Video**: `bun run render:bloco3:webm` / `bun run render:coe` / `bun run render:full`
+- **Render Video Scenes (WebM Alpha)**: `bun run render:video <video-id> --format=webm`
+- **Render Video Scenes (ProRes 4444 Alpha)**: `bun run render:video <video-id> --format=prores`
+- **Render Single Scene Quickly**: `bun run render:video <video-id> --scene=<id-ou-numero> --format=webm`
+- **Render Full Unified Video**: `bun run render:video <video-id> --full`
 - **Check TypeScript Types**: `bun run build`

@@ -39,23 +39,24 @@ export const MotionPresets = {
 } as const;
 
 /**
- * Calculates continuous sinusoidal micro-movements (ambient drift / breathing)
- * to ensure 0% static/frozen frames ("Anti-Stuck" rule).
+ * Calculates continuous micro-movements (ambient drift / breathing)
+ * to ensure 0% static/frozen frames ("Anti-Stuck" rule) without floaty wobble.
+ * ADR-006: amplitudeRotate defaults to 0 to prevent "jelly / AI template" instability.
  */
 export interface AmbientDriftOptions {
-  amplitudeY?: number;      // Default ±3px
-  amplitudeX?: number;      // Default ±1.5px
-  amplitudeRotate?: number; // Default ±0.5deg
-  periodFrames?: number;    // Default 60 frames (~2s at 30fps)
+  amplitudeY?: number;      // Default ±0.8px (clean, restrained)
+  amplitudeX?: number;      // Default ±0.4px
+  amplitudeRotate?: number; // Default 0.0deg (strict Anti-Wobble)
+  periodFrames?: number;    // Default 90 frames (slow, elegant 3s cycle)
   phaseOffset?: number;     // Random or stagger phase offset
 }
 
 export function getAmbientDrift(frame: number, options: AmbientDriftOptions = {}) {
   const {
-    amplitudeY = 3.0,
-    amplitudeX = 1.5,
-    amplitudeRotate = 0.5,
-    periodFrames = 60,
+    amplitudeY = 0.8,
+    amplitudeX = 0.4,
+    amplitudeRotate = 0.0,
+    periodFrames = 90,
     phaseOffset = 0,
   } = options;
 
@@ -65,8 +66,8 @@ export function getAmbientDrift(frame: number, options: AmbientDriftOptions = {}
   return {
     translateY: Math.sin(angle) * amplitudeY,
     translateX: Math.cos(secondaryAngle) * amplitudeX,
-    rotate: Math.sin(angle * 0.8) * amplitudeRotate,
-    scale: 1 + Math.sin(angle * 0.5) * 0.008, // Subtle 0.8% breathing
+    rotate: amplitudeRotate > 0 ? Math.sin(angle * 0.8) * amplitudeRotate : 0,
+    scale: 1 + Math.sin(angle * 0.5) * 0.003, // Ultra-subtle 0.3% breathing
   };
 }
 

@@ -176,6 +176,8 @@ export const SceneComposer: React.FC<SceneComposerProps> = ({
             align={el.align}
             delay={el.delay}
             glow={el.glow}
+            revealMode={el.revealMode}
+            strikethroughDelay={el.strikethroughDelay}
           />
         );
 
@@ -250,8 +252,9 @@ export const SceneComposer: React.FC<SceneComposerProps> = ({
 
     switch (layout) {
       // -------------------------------------------------------------
-      // 1. MONUMENTAL HERO (Massive centered anchor with stamp lockup)
+      // ADR-006: 1. MONUMENTAL PUNCH & HERO (1-3 words, pure alpha, mask reveal)
       // -------------------------------------------------------------
+      case 'monumental-punch':
       case 'monumental-hero':
       case 'centered-hero':
       case 'freeform': {
@@ -306,8 +309,53 @@ export const SceneComposer: React.FC<SceneComposerProps> = ({
       }
 
       // -------------------------------------------------------------
-      // 2. HORIZONTAL SPLIT (50/50 or 60/40 comparative divide)
+      // ADR-006: STRIKE REDACTION (Word A struck through -> Word B truth revealed)
       // -------------------------------------------------------------
+      case 'strike-redaction': {
+        const primary = elements[0];
+        const secondary = elements[1];
+
+        return (
+          <div
+            style={{
+              position: 'relative',
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: '24px',
+              width: '100%',
+              textAlign: 'center',
+            }}
+          >
+            {primary && (
+              primary.type === 'text' ? (
+                <TextReveal
+                  {...primary}
+                  revealMode="strikethrough"
+                  strikethroughDelay={primary.delay ? primary.delay + 20 : 20}
+                />
+              ) : (
+                renderElement(primary, 0)
+              )
+            )}
+            {secondary && (
+              <div style={{ marginTop: '8px' }}>
+                {secondary.type === 'text' ? (
+                  <TextReveal {...secondary} delay={(secondary.delay ?? 0) + 24} />
+                ) : (
+                  renderElement(secondary, 1)
+                )}
+              </div>
+            )}
+          </div>
+        );
+      }
+
+      // -------------------------------------------------------------
+      // 2. HORIZONTAL SPLIT / BINARY TENSION (Clean polar compare)
+      // -------------------------------------------------------------
+      case 'binary-tension':
       case 'horizontal-split':
       case 'split-left':
       case 'split-right':
@@ -440,8 +488,9 @@ export const SceneComposer: React.FC<SceneComposerProps> = ({
       }
 
       // -------------------------------------------------------------
-      // 4. BLUEPRINT GRIFO (Document clause with neon highlight & leader)
+      // 4. BLUEPRINT GRIFO / FORENSIC CALLOUT (Document clause with neon highlight & leader)
       // -------------------------------------------------------------
+      case 'forensic-callout':
       case 'blueprint-grifo': {
         const textElements = elements.filter((e) => e.type === 'text');
         const secondaryElements = elements.filter((e) => e.type !== 'text');
@@ -555,8 +604,9 @@ export const SceneComposer: React.FC<SceneComposerProps> = ({
       }
 
       // -------------------------------------------------------------
-      // 6. SPLIT AUTHORITY (Colossal counter crossing boundary)
+      // 6. SPLIT AUTHORITY / METRIC AUTHORITY (Colossal counter crossing boundary)
       // -------------------------------------------------------------
+      case 'metric-authority':
       case 'split-authority': {
         const numberElement = elements.find((e) => e.type === 'number') || elements[0];
         const otherElements = elements.filter((e) => e !== numberElement);

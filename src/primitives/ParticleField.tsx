@@ -15,9 +15,9 @@ export interface ParticleFieldProps {
 }
 
 export const ParticleField: React.FC<ParticleFieldProps> = ({
-  showGrid = true,
-  showCorners = true,
-  showCrosshairs = true,
+  showGrid = false,
+  showCorners = false,
+  showCrosshairs = false,
   showRadialVignette = false,
   transparent = true,
   accentColor = OFurryTheme.colors.accentOrange,

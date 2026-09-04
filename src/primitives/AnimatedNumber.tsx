@@ -84,23 +84,11 @@ export const AnimatedNumber: React.FC<AnimatedNumberProps> = ({
         flexDirection: 'column',
         alignItems: 'center',
         justifyContent: 'center',
-        padding: isCard
-          ? '28px 44px'
-          : isBadge
-          ? '8px 20px'
-          : '12px 24px',
-        backgroundColor: isCard
-          ? 'rgba(20, 20, 20, 0.85)'
-          : isBadge
-          ? 'rgba(255, 153, 0, 0.1)'
-          : 'transparent',
-        borderRadius: isCard ? '20px' : isBadge ? '8px' : '12px',
-        border: isCard
-          ? `1px solid ${OFurryTheme.colors.borderLight}`
-          : isBadge
-          ? `1px solid ${OFurryTheme.colors.accentOrangeAlpha(0.5)}`
-          : 'none',
-        boxShadow: isCard ? OFurryTheme.effects.cardGlow : isBadge ? OFurryTheme.effects.glowOrange : undefined,
+        padding: isBadge ? '6px 18px' : '0px',
+        backgroundColor: isBadge ? OFurryTheme.colors.accentOrangeAlpha(0.12) : 'transparent',
+        borderRadius: isBadge ? '4px' : '0px',
+        border: isBadge ? `1px solid ${OFurryTheme.colors.accentOrangeAlpha(0.4)}` : 'none',
+        boxShadow: isBadge ? OFurryTheme.effects.glowOrange : undefined,
         transform: `translateY(${ambient.translateY}px) scale(${containerScale * ambient.scale})`,
         opacity: containerOpacity,
         fontFamily: OFurryTheme.typography.families.tech,

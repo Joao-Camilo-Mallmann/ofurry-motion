@@ -38,13 +38,9 @@ Every scene must be grounded in the motion design principles from `/motion-desig
   2. **Secondary Layer**: Neon highlight badge (`#FF9900` with `#000000` text), Lucide icon expanding ring, technical leader lines.
   3. **Ambient Layer**: Tech framing L-corners, precision crosshairs, and subtle sinusoidal drift (±2px).
 
-### 2. Always Use `/explore-openspec` for Planning
-When exploring new video ideas, structuring long scripts into scenes, or deciding on visual metaphors:
-- Use `/explore-openspec` (`openspec-explore`) to brainstorm the narrative structure, compare visual archetypes, and validate key visual anchors before generating scene code.
-
 ---
 
-## ⚡ Core Operational Directives (ADR-005)
+## ⚡ Core Operational Directives (ADR-001 - ADR-005)
 
 ### 1. Decomposição Granular Frase a Frase (3s a 5s)
 - **Uma frase = Uma mini-cena:** Nunca agrupe múltiplas frases ou parágrafos inteiros em uma única cena estática.

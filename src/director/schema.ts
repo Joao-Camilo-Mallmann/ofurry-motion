@@ -46,6 +46,8 @@ export const TextElementSchema = z.object({
   align: z.enum(['center', 'left', 'right']).default('center'),
   delay: z.number().default(0),
   glow: z.boolean().default(false),
+  revealMode: z.enum(['mask', 'punch', 'strikethrough', 'stagger']).default('mask'),
+  strikethroughDelay: z.number().default(25),
   position: PositionSchema.optional(),
   anchorTo: AnchorToSchema.optional(),
   sizeRatio: z.number().optional().describe('Relative size multiplier (0.2 to 2.0)'),
@@ -161,7 +163,13 @@ export const ArtDirectionSchema = z.object({
 
 // ADR-004 6 Layout Silhouettes + Legacy compatibility
 export const LayoutSilhouetteSchema = z.enum([
-  // 6 ADR-004 Canonical Silhouettes
+  // ADR-006 5 Strategic Typographic Archetypes
+  'monumental-punch',
+  'metric-authority',
+  'strike-redaction',
+  'binary-tension',
+  'forensic-callout',
+  // ADR-004 Canonical Silhouettes
   'monumental-hero',
   'horizontal-split',
   'stacked-steps',
