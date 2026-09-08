@@ -86,23 +86,6 @@ export const RemotionRoot: React.FC = () => {
               }}
             />
 
-            {/* Backwards-compatible alias for COE full sequence if applicable */}
-            {video.id.toLowerCase() === 'coe' && (
-              <Composition
-                id="COEComposition"
-                component={
-                  (video.fullSequenceComponent ?? MainVideo) as unknown as React.FC<Record<string, unknown>>
-                }
-                durationInFrames={totalVideoFrames}
-                fps={fps}
-                width={width}
-                height={height}
-                defaultProps={{
-                  scenes: video.scenes,
-                  transparent: false,
-                }}
-              />
-            )}
 
             {/* Mini-Vídeos Individuais por Cena com Canal Alpha NATIVO */}
             {video.scenes.map((scene, idx) => {

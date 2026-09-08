@@ -53,7 +53,7 @@ videos/<video-name>/
 
 ## 🏆 The 10 Golden Rules of the OFurry Engine (ADR-002 + ADR-004 + ADR-005 + ADR-006)
 
-1. **Strategic Punch Text (1-3 Words)**: Never display full sentences, paragraphs, or explanatory subtitles. Filter all text through `/no-ai-slop`.
+1. **Strategic Punch Text (1-3 Words & Zero Faux-Web Clutter)**: Never display full sentences, paragraphs, explanatory subtitles, or dense footer tickers/marquees. Permitido no máximo 1 micro-tag de alta precisão (máximo 3 palavras) associada diretamente ao elemento hero. Banidos rodapés e tickers secundários que dão "cara de web/template". Foco visceral no essencial.
 2. **Monumental Scale**: Hero titles occupy 70%-90% screen width (130px-160px). Numbers reach 200px-240px.
 3. **Typography by Role**:
    - `archivo` (`Archivo Black`) or `bebas` (`Bebas Neue`): Hero hook titles.
@@ -62,7 +62,10 @@ videos/<video-name>/
    - `jakarta` (`Plus Jakarta Sans`): Micro-labels de alta precisão (14px).
 4. **Anti-"AI Slop" / Zero Cards**: High contrast solid black (#000000), solid neon orange blocks (#FF9900) with pure black text (#000000), zero grey background cards (`rgba(20,20,20,...)`), zero container boxes, zero generic blur clouds, zero default grids.
 5. **Native Alpha Channel**: Transparent background output in ProRes 4444 (`.mov`) or WebM.
-6. **Impact & Lock Physics (Anti-Wobble)**: Mask Reveal from baseline or snappy spring entry (frames 0-12), solid lock hold for effortless reading, zero rotational wobble.
+6. **Impact & Full-Timeline Fluidity (Anti-Freeze & Anti-Wobble)**: 
+   - **Entrada (0-15 frames):** Mask Reveal da linha de base (`overflow: hidden`) ou snap seco com spring firme.
+   - **Fluidez Contínua Durante Todo o Vídeo (15-final):** Proibido congelar a tela. A cena deve manter movimento orgânico contínuo e suave durante toda a sua duração (pulsação harmônica suave em números/ícones, ondas contínuas de luz/gradiente e micro-flutuação visível), preservando legibilidade sem estagnação.
+   - **Anti-Wobble:** Rotação senoidal PROIBIDA (`amplitudeRotate: 0`).
 7. **Anchored Composition (Zero Orphans)**: Every secondary element must declare `anchorTo` and `compositionBridge` (`connector-line`, `overlap`, `color-trail`, `none-justified`) tied to the dominant anchor element.
 8. **Relative Proportional Scaling (`sizeRatio`)**: Secondary elements derive size from the dominant anchor (55%-75% of text hero height; 35%-45% of number hero height).
 9. **5 Strategic Typographic Archetypes**: Continuous rotation between `monumental-punch`, `metric-authority`, `strike-redaction`, `binary-tension`, and `forensic-callout`.
