@@ -1,10 +1,16 @@
 import { VideoPackage, VideoScene, isBespokeScene } from './types';
-import { coeVideoPackage } from '../../videos/coe/scenes';
+import { trecho01Package } from '../../videos/coe/output/trecho-01/scenes';
 
 /**
  * Registry of all production video packages in the project.
  * Videos registered here will automatically be discovered by Remotion Studio and the CLI render scripts.
  */
+export const coeVideoPackage: VideoPackage = {
+  id: 'coe',
+  title: 'Por Que COE É Uma Merda',
+  trechos: [trecho01Package],
+};
+
 export const videoRegistry: Record<string, VideoPackage> = {
   coe: coeVideoPackage,
 };
@@ -47,12 +53,34 @@ export function getVideoScene(videoId: string, sceneId: string): VideoScene | un
   if (!video) return undefined;
 
   const target = sceneId.toLowerCase();
-  return video.scenes.find((s) => {
-    const idLower = s.id.toLowerCase();
-    return (
-      idLower === target ||
-      idLower.includes(target) ||
-      idLower.endsWith(`-${target}`)
-    );
-  });
+
+  // 1. Check in top-level scenes
+  if (video.scenes) {
+    const scene = video.scenes.find((s) => {
+      const idLower = s.id.toLowerCase();
+      return (
+        idLower === target ||
+        idLower.includes(target) ||
+        idLower.endsWith(`-${target}`)
+      );
+    });
+    if (scene) return scene;
+  }
+
+  // 2. Check inside incremental trechos
+  if (video.trechos) {
+    for (const trecho of video.trechos) {
+      const scene = trecho.scenes.find((s) => {
+        const idLower = s.id.toLowerCase();
+        return (
+          idLower === target ||
+          idLower.includes(target) ||
+          idLower.endsWith(`-${target}`)
+        );
+      });
+      if (scene) return scene;
+    }
+  }
+
+  return undefined;
 }

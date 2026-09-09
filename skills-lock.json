@@ -53,6 +53,12 @@
       "source": "local",
       "sourceType": "workspace",
       "skillPath": ".agents/skills/openspec-update-change/SKILL.md"
+    },
+    "video-shotcraft": {
+      "source": "Vincentwei1021/video-shotcraft",
+      "sourceType": "github",
+      "skillPath": "SKILL.md",
+      "computedHash": "3fbb2b0cc47d32416ae8ae96ca996a16c05721a5b4736b710d7ccda4c08f5365"
     }
   }
 }

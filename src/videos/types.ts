@@ -51,6 +51,16 @@ export interface SceneModule {
 }
 
 /**
+ * Incremental Trecho Package definition
+ */
+export interface TrechoPackage {
+  id: string; // e.g. 'trecho-01'
+  title?: string;
+  scenes: VideoScene[];
+  fullSequenceComponent?: React.ComponentType<{ transparent?: boolean }>;
+}
+
+/**
  * Self-contained Video Package definition
  */
 export interface VideoPackage {
@@ -59,6 +69,8 @@ export interface VideoPackage {
   fps?: number;
   width?: number;
   height?: number;
-  scenes: VideoScene[];
+  scenes?: VideoScene[];
+  trechos?: TrechoPackage[];
   fullSequenceComponent?: React.ComponentType<{ transparent?: boolean }>;
 }
+

@@ -17,6 +17,9 @@
     "render:scenes:mp4": "bun run scripts/render-scenes.ts --format=mp4",
     "render:scene": "bun run scripts/render-scenes.ts",
     "render:video": "bun run scripts/render-scenes.ts",
+    "render:trecho": "bun run scripts/render-scenes.ts --trecho",
+    "render:trecho:webm": "bun run scripts/render-scenes.ts --format=webm --trecho",
+    "render:trecho:prores": "bun run scripts/render-scenes.ts --format=prores --trecho",
     "build": "tsc --noEmit"
   },
   "dependencies": {

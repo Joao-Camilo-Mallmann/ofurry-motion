@@ -60,9 +60,10 @@ export const RemotionRoot: React.FC = () => {
       )}
 
       {videos.map((video) => {
+        const scenesList = video.scenes ?? [];
         const totalVideoFrames = Math.max(
           1,
-          video.scenes.reduce((acc, s) => acc + (s.durationInFrames ?? 90), 0)
+          scenesList.reduce((acc, s) => acc + (s.durationInFrames ?? 90), 0)
         );
         const fps = video.fps ?? OFurryTheme.layout.fps;
         const width = video.width ?? OFurryTheme.layout.width;
@@ -71,24 +72,25 @@ export const RemotionRoot: React.FC = () => {
         return (
           <React.Fragment key={video.id}>
             {/* Composição de Sequência Completa do Vídeo */}
-            <Composition
-              id={`${video.id}-Full-Sequence`}
-              component={
-                (video.fullSequenceComponent ?? MainVideo) as unknown as React.FC<Record<string, unknown>>
-              }
-              durationInFrames={totalVideoFrames}
-              fps={fps}
-              width={width}
-              height={height}
-              defaultProps={{
-                scenes: video.scenes,
-                transparent: false,
-              }}
-            />
-
+            {scenesList.length > 0 && (
+              <Composition
+                id={`${video.id}-Full-Sequence`}
+                component={
+                  (video.fullSequenceComponent ?? MainVideo) as unknown as React.FC<Record<string, unknown>>
+                }
+                durationInFrames={totalVideoFrames}
+                fps={fps}
+                width={width}
+                height={height}
+                defaultProps={{
+                  scenes: scenesList,
+                  transparent: false,
+                }}
+              />
+            )}
 
             {/* Mini-Vídeos Individuais por Cena com Canal Alpha NATIVO */}
-            {video.scenes.map((scene, idx) => {
+            {scenesList.map((scene, idx) => {
               const sceneNumber = String(idx + 1).padStart(2, '0');
               const compId = `${video.id}-Cena-${sceneNumber}-${scene.id}`;
               const duration = scene.durationInFrames ?? 90;
@@ -127,6 +129,77 @@ export const RemotionRoot: React.FC = () => {
                     transparent: true,
                   }}
                 />
+              );
+            })}
+
+            {/* Trechos Incrementais (output/trecho-XX/) */}
+            {video.trechos?.map((trecho) => {
+              const trechoFrames = Math.max(
+                1,
+                trecho.scenes.reduce((acc, s) => acc + (s.durationInFrames ?? 90), 0)
+              );
+
+              return (
+                <React.Fragment key={`${video.id}-${trecho.id}`}>
+                  {/* Sequência Completa do Trecho */}
+                  <Composition
+                    id={`${video.id}-${trecho.id}-Full`}
+                    component={
+                      (trecho.fullSequenceComponent ?? MainVideo) as unknown as React.FC<Record<string, unknown>>
+                    }
+                    durationInFrames={trechoFrames}
+                    fps={fps}
+                    width={width}
+                    height={height}
+                    defaultProps={{
+                      scenes: trecho.scenes,
+                      transparent: false,
+                    }}
+                  />
+
+                  {/* Cenas Individuais do Trecho com Canal Alpha */}
+                  {trecho.scenes.map((scene, idx) => {
+                    const sceneNumber = String(idx + 1).padStart(2, '0');
+                    const compId = `${video.id}-${trecho.id}-Cena-${sceneNumber}-${scene.id}`;
+                    const duration = scene.durationInFrames ?? 90;
+                    const sceneFps = isBespokeScene(scene) ? (scene.fps ?? fps) : fps;
+                    const sceneWidth = isBespokeScene(scene) ? (scene.width ?? width) : width;
+                    const sceneHeight = isBespokeScene(scene) ? (scene.height ?? height) : height;
+
+                    if (isBespokeScene(scene)) {
+                      return (
+                        <Composition
+                          key={`${video.id}-${trecho.id}-${scene.id}`}
+                          id={compId}
+                          component={scene.component as unknown as React.FC<Record<string, unknown>>}
+                          durationInFrames={duration}
+                          fps={sceneFps}
+                          width={sceneWidth}
+                          height={sceneHeight}
+                          defaultProps={{
+                            transparent: true,
+                          }}
+                        />
+                      );
+                    }
+
+                    return (
+                      <Composition
+                        key={`${video.id}-${trecho.id}-${scene.id}`}
+                        id={compId}
+                        component={SceneComposer as unknown as React.FC<Record<string, unknown>>}
+                        durationInFrames={duration}
+                        fps={sceneFps}
+                        width={sceneWidth}
+                        height={sceneHeight}
+                        defaultProps={{
+                          scene,
+                          transparent: true,
+                        }}
+                      />
+                    );
+                  })}
+                </React.Fragment>
               );
             })}
           </React.Fragment>

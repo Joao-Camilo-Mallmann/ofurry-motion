@@ -6,6 +6,7 @@ import { getCompositions, renderMedia, RenderMediaOnProgress } from '@remotion/r
 interface RenderOptions {
   format: 'prores' | 'webm' | 'mp4';
   video?: string;
+  trecho?: string;
   scene?: string;
   full?: boolean;
   outDir: string;
@@ -16,11 +17,13 @@ function parseArgs(): RenderOptions {
   const args = process.argv.slice(2);
   let format: 'prores' | 'webm' | 'mp4' = 'prores';
   let video: string | undefined = undefined;
+  let trecho: string | undefined = undefined;
   let scene: string | undefined = undefined;
   let full: boolean = false;
   let customOutDir: string | undefined = undefined;
 
-  for (const arg of args) {
+  for (let i = 0; i < args.length; i++) {
+    const arg = args[i];
     if (arg.startsWith('--format=')) {
       const f = arg.split('=')[1].toLowerCase();
       if (f === 'prores' || f === 'webm' || f === 'mp4') {
@@ -28,6 +31,16 @@ function parseArgs(): RenderOptions {
       }
     } else if (arg.startsWith('--video=')) {
       video = arg.split('=')[1].trim();
+    } else if (arg.startsWith('--trecho=')) {
+      const t = arg.split('=')[1].trim().toLowerCase();
+      trecho = t.startsWith('trecho-') ? t : `trecho-${t.padStart(2, '0')}`;
+    } else if (arg === '--trecho') {
+      const nextArg = args[i + 1];
+      if (nextArg && !nextArg.startsWith('-')) {
+        const t = nextArg.trim().toLowerCase();
+        trecho = t.startsWith('trecho-') ? t : `trecho-${t.padStart(2, '0')}`;
+        i++;
+      }
     } else if (arg.startsWith('--scene=')) {
       scene = arg.split('=')[1].trim();
     } else if (arg.startsWith('--id=')) {
@@ -37,9 +50,12 @@ function parseArgs(): RenderOptions {
     } else if (arg.startsWith('--outDir=')) {
       customOutDir = path.resolve(process.cwd(), arg.split('=')[1].trim());
     } else if (!arg.startsWith('-')) {
-      // Positional argument: first is video, second is scene
+      // Positional argument: video -> [trecho] -> [scene]
       if (!video) {
         video = arg.trim();
+      } else if (!trecho && (arg.toLowerCase().startsWith('trecho-') || /^\d+$/.test(arg))) {
+        const val = arg.trim().toLowerCase();
+        trecho = val.startsWith('trecho-') ? val : `trecho-${val.padStart(2, '0')}`;
       } else if (!scene) {
         scene = arg.trim();
       }
@@ -54,15 +70,22 @@ function parseArgs(): RenderOptions {
   let outDir: string;
   if (customOutDir) {
     outDir = customOutDir;
+  } else if (video && trecho) {
+    outDir = path.resolve(process.cwd(), 'videos', video, 'output', trecho, 'render');
   } else if (video) {
-    outDir = path.resolve(process.cwd(), 'videos', video, 'out');
+    outDir = full
+      ? path.resolve(process.cwd(), 'videos', video, 'out', 'full')
+      : path.resolve(process.cwd(), 'videos', video, 'out', 'scenes');
   } else {
-    outDir = path.resolve(process.cwd(), 'out/scenes');
+    outDir = full
+      ? path.resolve(process.cwd(), 'out', 'full')
+      : path.resolve(process.cwd(), 'out', 'scenes');
   }
 
   return {
     format,
     video,
+    trecho,
     scene,
     full,
     outDir,
@@ -73,9 +96,12 @@ function parseArgs(): RenderOptions {
 async function main() {
   const options = parseArgs();
   console.log('====================================================');
-  console.log('🎬 OFurry Motion Renderer (Video-Scoped Architecture)');
+  console.log('🎬 OFurry Motion Renderer (Incremental & Scoped Engine)');
   if (options.video) {
     console.log(`📁 Target Video:  ${options.video.toUpperCase()}`);
+  }
+  if (options.trecho) {
+    console.log(`🎞️ Target Trecho: ${options.trecho.toUpperCase()}`);
   }
   console.log(`📦 Output format: ${options.format.toUpperCase()} (Alpha: ${options.format !== 'mp4'})`);
   console.log(`💾 Destination:   ${options.outDir}`);
@@ -84,7 +110,7 @@ async function main() {
   } else if (options.scene) {
     console.log(`🎯 Target Scene:  ${options.scene}`);
   } else {
-    console.log(`🎞️ Mode:          All Scenes for ${options.video ?? 'All Videos'}`);
+    console.log(`🎞️ Mode:          All Scenes for ${options.trecho ? `${options.video}/${options.trecho}` : (options.video ?? 'All Videos')}`);
   }
   console.log('====================================================\n');
 
@@ -105,8 +131,40 @@ async function main() {
 
   let targetCompositions = compositions;
 
-  // 1. Full Sequence Mode
-  if (options.full) {
+  // Mode 1: Trecho-scoped filter
+  if (options.trecho) {
+    const trechoTarget = options.trecho.toLowerCase();
+    const videoTarget = (options.video ?? '').toLowerCase();
+
+    targetCompositions = compositions.filter((c) => {
+      const idLower = c.id.toLowerCase();
+      const matchesVideo = !videoTarget || idLower.startsWith(`${videoTarget}-`);
+      const matchesTrecho = idLower.includes(trechoTarget);
+      return matchesVideo && matchesTrecho;
+    });
+
+    if (options.full) {
+      targetCompositions = targetCompositions.filter((c) => c.id.toLowerCase().endsWith('-full'));
+    } else {
+      // Filter out full sequence compositions when targeting scenes
+      targetCompositions = targetCompositions.filter((c) => !c.id.toLowerCase().endsWith('-full'));
+
+      if (options.scene) {
+        const target = options.scene.toLowerCase();
+        const numTarget = target.replace(/^0+/, '').padStart(2, '0');
+        targetCompositions = targetCompositions.filter((c) => {
+          const idLower = c.id.toLowerCase();
+          return (
+            idLower === target ||
+            idLower.includes(`-cena-${numTarget}-`) ||
+            idLower.includes(`-cena-${target}-`) ||
+            idLower.endsWith(`-${target}`)
+          );
+        });
+      }
+    }
+  } else if (options.full) {
+    // Mode 2: Full Sequence Mode (Video-level)
     const videoTarget = (options.video ?? '').toLowerCase();
     targetCompositions = compositions.filter((c) => {
       const idLower = c.id.toLowerCase();
@@ -120,11 +178,10 @@ async function main() {
       return idLower.includes('full-sequence') || idLower.includes('composition');
     });
   } else {
-    // 2. Scene-Level Compositions Filter
+    // Mode 3: Video-level / Global Scene Filter
     targetCompositions = compositions.filter((c) => {
       const idLower = c.id.toLowerCase();
-      // Exclude full sequences unless specifically targeted
-      if (idLower.includes('full-sequence') || idLower.endsWith('composition') || idLower === 'placeholder') {
+      if (idLower.includes('full-sequence') || idLower.endsWith('composition') || idLower === 'placeholder' || idLower.endsWith('-full')) {
         return false;
       }
       if (options.video) {
@@ -133,7 +190,6 @@ async function main() {
       return idLower.includes('-cena-') || idLower.startsWith('scene-') || idLower.includes('cena');
     });
 
-    // 3. Filter specific scene ID/number if provided
     if (options.scene) {
       const target = options.scene.toLowerCase();
       const numTarget = target.replace(/^0+/, '').padStart(2, '0');
@@ -160,7 +216,7 @@ async function main() {
   }
 
   if (targetCompositions.length === 0) {
-    console.error(`❌ No compositions found matching criteria: video=${options.video || 'any'}, scene=${options.scene || 'all'}, full=${options.full}`);
+    console.error(`❌ No compositions found matching criteria: video=${options.video || 'any'}, trecho=${options.trecho || 'none'}, scene=${options.scene || 'all'}, full=${options.full}`);
     console.log('Available compositions were:');
     compositions.forEach((c) => console.log(`  - ${c.id}`));
     process.exit(1);
@@ -193,8 +249,24 @@ async function main() {
 
   for (let i = 0; i < targetCompositions.length; i++) {
     const comp = targetCompositions[i];
-    const fileName = options.full ? `full.${codecConfig.extension}` : `${comp.id}.${codecConfig.extension}`;
+    let fileName: string;
+
+    if (options.full) {
+      fileName = `full.${codecConfig.extension}`;
+    } else if (options.trecho) {
+      // Clean scene file name if matched trecho pattern (e.g. coe-trecho-01-Cena-01-gancho -> 01-gancho.webm)
+      const match = comp.id.match(new RegExp(`${options.trecho}-Cena-(.+)$`, 'i'));
+      if (match && match[1]) {
+        fileName = `${match[1]}.${codecConfig.extension}`;
+      } else {
+        fileName = `${comp.id}.${codecConfig.extension}`;
+      }
+    } else {
+      fileName = `${comp.id}.${codecConfig.extension}`;
+    }
+
     const outputFile = path.join(options.outDir, fileName);
+
 
     console.log(`▶ [${i + 1}/${targetCompositions.length}] Rendering: ${comp.id}`);
     console.log(`  ⏱ Duration: ${comp.durationInFrames} frames (${(comp.durationInFrames / comp.fps).toFixed(1)}s)`);
