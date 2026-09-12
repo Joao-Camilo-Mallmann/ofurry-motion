@@ -1,5 +1,7 @@
 import { VideoPackage, VideoScene, isBespokeScene } from './types';
 import { trecho01Package } from '../../videos/coe/output/trecho-01/scenes';
+import { trecho02Package } from '../../videos/coe/output/trecho-02/scenes';
+import { trecho03Package } from '../../videos/coe/output/trecho-03/scenes';
 
 /**
  * Registry of all production video packages in the project.
@@ -8,7 +10,7 @@ import { trecho01Package } from '../../videos/coe/output/trecho-01/scenes';
 export const coeVideoPackage: VideoPackage = {
   id: 'coe',
   title: 'Por Que COE É Uma Merda',
-  trechos: [trecho01Package],
+  trechos: [trecho01Package, trecho02Package, trecho03Package],
 };
 
 export const videoRegistry: Record<string, VideoPackage> = {

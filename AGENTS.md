@@ -16,11 +16,12 @@ Whenever processing script narration or building motion scenes:
 - **Roteiro Como Única Fonte Persistente de Contexto**: A skill lê `videos/<video>/roteiro.md` para identificar o próximo trecho a ser produzido. **NÃO consome o código ou implementações dos trechos anteriores.** Continuidade narrativa e vetorial sem dependência de código.
 - **Granularidade Cinematográfica**: Cada trecho é composto por tomadas de 3s a 5s (90-150 frames) que formam uma corrente audiovisual contínua com a locução.
 
-### 2. Mandatory Dual Visual Engine: `/motion-design` + `video-shotcraft`
-Every scene must fuse the editorial physics of `motion-design` with the cinematography of `video-shotcraft`:
-- **`motion-design` (Física & Comportamento)**: Damped springs (`snappy`, `smooth-draw`), timing 0-15f punch / 15-final hold com micro-drift, 3 camadas de movimento, tipografia monumental (130px-160px) e métricas (200px-240px).
+### 2. Mandatory Triple Visual Engine: `/motion-design` + `video-shotcraft` + `icon-craft`
+Every scene must fuse editorial physics, camera cinematography, and visceral physical metaphors:
+- **`motion-design` (Física & Comportamento)**: Damped springs (`snappy`, `smooth`), timing 0-15f punch / 15-final hold com micro-drift, 3 camadas de movimento, tipografia monumental (130px-160px) e métricas (200px-240px).
 - **`video-shotcraft` (Câmera & Cinematografia)**: Câmera 2.5D (tilt, perspective 1000px, parallax drift), enquadramentos dinâmicos (push-in, crash zoom, orbit, whip), 157 shot recipes, curva de energia (`promo-energy-arc`), cortes motivados pela ação e Sound Design cirúrgico (SFX cues: impact, riser, whoosh, silence).
-- **Core Question**: *"Qual plano cinematográfico melhor comunica esta frase?"* (e não *"Qual layout colocar?"*).
+- **`icon-craft` (Metáforas Físicas & Ícones)**: Catálogo de 55 ícones físicos (`public/icons/`). Renderização com alto contraste sobre canal Alpha via `<AssetIcon />`: inversão de pretos para branco puro (`variant="white"`), colorização neon `#FF9900` (`variant="orange"`), ou cores nativas (`variant="original"`). Proibido ícones como mini-badges ou em cards SaaS; sempre como 1 metáfora dominante (140px-300px) ou âncora rígida.
+- **Core Question**: *"Qual plano cinematográfico e metáfora física melhor comunicam esta frase?"* (e não *"Qual layout colocar?"*).
 
 ### 3. Always Incorporate `/no-ai-slop` & Anti-SaaS Visual Directive
 - **Zero Cards / Zero Dashboards**: Proibido cards cinzas, chips, pills, badges, painéis de dashboard, grids de informação, UI fictícia, excesso de labels e divisórias.

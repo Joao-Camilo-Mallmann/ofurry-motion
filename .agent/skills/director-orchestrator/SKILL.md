@@ -43,21 +43,23 @@ A resposta principal da skill deve apresentar exclusivamente o **Plano Visual Ed
 
 ## 2. MOTORES VISUAIS OBRIGATÓRIOS
 
-Para criar as propostas visuais, utilize obrigatoriamente a combinação de duas skills essenciais:
+Para criar as propostas visuais, utilize obrigatoriamente a combinação de três skills essenciais:
 
 1. **`motion-design`** (Física e Comportamento Editorial)
 2. **`video-shotcraft`** (Cinematografia e Linguagem de Câmera)
+3. **`icon-craft`** (Metáforas Físicas, Ícones & Simbolismo de Mercado)
 
 ### Divisão de Responsabilidades:
 
 | Motor | Responsabilidade | Ferramental |
 |---|---|---|
-| **`motion-design`** | Física, dinâmica e autoridade tipográfica | • Damped springs (`snappy`, `smooth-draw`)<br>• Overshoot e settle calibrados<br>• Escala monumental (130-160px texto, 200-240px números)<br>• 3 camadas de movimento (Primary Hero, Secondary Highlight, Ambient Alpha)<br>• Timing de retenção (0-15f snap, 15-final hold com micro-drift) |
+| **`motion-design`** | Física, dinâmica e autoridade tipográfica | • Damped springs (`snappy`, `smooth`)<br>• Overshoot e settle calibrados<br>• Escala monumental (130-160px texto, 200-240px números)<br>• 3 camadas de movimento (Primary Hero, Secondary Highlight, Ambient Alpha)<br>• Timing de retenção (0-15f snap, 15-final hold com micro-drift) |
 | **`video-shotcraft`** | Câmera, espaço e cinematografia | • Câmera 2.5D (tilt, perspective 1000px, parallax drift)<br>• Enquadramentos dinâmicos (push-in, crash zoom, orbit, whip-pan)<br>• Catálogo de 157 shot recipe cards (`references/shots/`)<br>• Ritmo, cadência e cortes motivados por ação<br>• Sound Design com SFX pontuais (`assets/audio/sfx/`) |
+| **`icon-craft`** | Metáforas físicas tangíveis e símbolos | • Catálogo de 55 ícones físicos (`public/icons/`)<br>• Alto contraste no canal Alpha via `<AssetIcon />`<br>• Inversão de pretos para branco (`variant="white"`), neon orange (`variant="orange"`), nativo (`variant="original"`)<br>• 1 ícone monumental dominante (140-300px) ou âncora travada à métrica |
 
-A `director-orchestrator` funde esses dois motores:
+A `director-orchestrator` funde esses três motores:
 > **A pergunta principal da skill nunca é:** *"Qual layout devo colocar?"*
-> **A pergunta principal é sempre:** *"Qual plano cinematográfico melhor comunica esta frase?"*
+> **A pergunta principal é sempre:** *"Qual plano cinematográfico e metáfora física melhor comunicam esta frase?"*
 
 ---
 
@@ -77,26 +79,34 @@ A identidade visual do canal OFurry deve permanecer brutalista, editorial e cine
 - Tabelas estilizadas
 - Excesso de bordas, divisórias e contornos decorativos
 - Tags sci-fi clichês ("SYS.SCAN", "DATA.LOG // 01")
+- **LAYOUT MONÓTONO EM COLUNA VERTICAL REPETIDA**: Proibido montar todas as cenas com a mesma receita "tag no topo → ícone no meio → título → tarja laranja no rodapé". Isso gera sensação de template genérico sem dinamismo.
 
-### ✅ PREFERIR OBRIGATORIAMENTE:
-- **1 único objeto/número dominante no frame**
-- **Tipografia monumental solta flutuando diretamente sobre o canal Alpha real**
-- Escala extrema (letras ocupando 70% a 90% da largura útil)
-- **Espaço negativo dramático** (o vazio comanda a atenção)
-- Composição assimétrica equilibrada
-- Movimento de câmera e profundidade 2.5D (Z-axis)
-- Parallax sutil entre elemento dominante e elementos de fundo
-- Colisão mecânica e impacto físico entre elementos
-- Máscaras de revelação (`overflow: hidden` na linha de base)
-- Tracking, zoom, rotação angular motivada por impacto
-- Spring physics com peso real
-- Cortes por movimento e transições motivadas pela ação
+### 🎨 ARQUÉTIPOS VISUAIS OFICIAIS DO OFURRY (Baseados em `docs/RefFurry/`):
+
+Cada cena deve obrigatoriamente adotar um dos 4 arquétipos e **VARIAR ENTRE CENAS CONSECUTIVAS**:
+
+1. **Arquétipo A: Ficha Técnica Neon / Blueprint (`ref1.png`)**:
+   - Ícone outline em neon elétrico vibrante (`variant="green"` `#00FF00` ou `variant="orange"` `#FF9900`).
+   - Título do ativo em caixa alta diretamente abaixo do ícone (ex: `CDB`, `COE`, `LCI`).
+   - Lista limpa de specs em tipografia branca sólida com sinal de igual (`=`), sem caixas ou cards:
+     ```text
+     Taxa = 100% CDI
+     Prazo = 5 anos
+     Condições = Liquidez diária
+     ```
+2. **Arquétipo B: Layered Text Stash / Intersect (`ref2.png`)**:
+   - Métrica ou palavra monumental com preenchimento preto e traço neon espesso de assinatura:
+     `-webkit-text-stroke: 4px #FF9900; color: #000000; font-family: 'Archivo Black';`
+   - O ícone físico (dinheiro, barras de ouro, alarme) fica posicionado **atrás ou intercalado** entre as letras (`zIndex: 0` sob o texto com `zIndex: 1`), espiando com profundidade 2.5D.
+3. **Arquétipo C: Crash Zoom / Word Slam**:
+   - Câmera frontal em crash zoom violento (45 graus), escala monumental extrema (ocupando 85%–90% da largura útil).
+   - Palavra visceral única (`CUSTA CARO`, `PRESO`, `NÃO É GRÁTIS`), colisão mecânica e silêncio tenso.
+4. **Arquétipo D: Split de Tensão / Assimetria (50/50 ou 70/30)**:
+   - Divisão espacial que confronta dois polos (Promessa vs Realidade, Mercado Livre vs Teto Artificial, Entrada vs Deságio).
 
 > [!IMPORTANT]
-> **A Regra de Ouro Anti-Dashboard:**
-> *"Se uma cena puder ser resolvida com um elemento grande se movendo bem, não introduza três elementos pequenos."*
->
-> O espectador deve sentir que está assistindo a uma peça audiovisual e cinematográfica, nunca navegando em uma interface web.
+> **REGRA DA NÃO-REPETIÇÃO ESTRUTURAL:**
+> Duas cenas consecutivas NUNCA podem ter o mesmo arquétipo de composição. Se a Cena 1 for um *Layered Text Stash*, a Cena 2 deve ser uma *Ficha Técnica Neon* ou um *Crash Word Slam*.
 
 ---
 
@@ -194,6 +204,14 @@ Antes de gerar qualquer linha de código TSX, apresente a proposta visual no for
 
 #### Metáfora Visual
 [Como a ideia é representada fisicamente na tela — ex: um fluxo de dinheiro sofrendo desvio mecânico lateral]
+
+#### Ícone Editorial (Icon Craft)
+- Ícone: `[nome-do-icone | nenhum]` (ex: `bank`, `thief`, `chart-lose`, `wallet`, `warning`, `crash-arrow`)
+- Modo de Cor: `[green (#00FF00) | orange (#FF9900) | white (invert) | original | custom]`
+- Escala & Papel: `[Hero Monumental (200px) | Âncora da Métrica | Carimbo de Alerta | Text Stash]`
+
+#### Arquétipo Visual OFurry (docs/RefFurry/)
+- Arquétipo: `[Ficha Técnica Neon (ref1.png) | Layered Text Stash (ref2.png) | Crash Word Slam | Split Tensão]` *(Obrigatório: DIFERENTE da cena anterior)*
 
 #### Shot
 [Descrição cinematográfica do enquadramento — ex: Plano médio com câmera 2.5D e deslocamento horizontal]

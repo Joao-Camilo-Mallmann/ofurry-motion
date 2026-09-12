@@ -20,6 +20,7 @@
     "render:trecho": "bun run scripts/render-scenes.ts --trecho",
     "render:trecho:webm": "bun run scripts/render-scenes.ts --format=webm --trecho",
     "render:trecho:prores": "bun run scripts/render-scenes.ts --format=prores --trecho",
+    "sync:icons": "bun run scripts/sync-icons.ts",
     "build": "tsc --noEmit"
   },
   "dependencies": {

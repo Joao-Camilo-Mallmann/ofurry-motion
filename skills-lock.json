@@ -6,6 +6,11 @@
       "sourceType": "workspace",
       "skillPath": ".agents/skills/director-orchestrator/SKILL.md"
     },
+    "icon-craft": {
+      "source": "local",
+      "sourceType": "workspace",
+      "skillPath": ".agents/skills/icon-craft/SKILL.md"
+    },
     "grill-me": {
       "source": "mattpocock/skills",
       "sourceType": "github",

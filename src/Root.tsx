@@ -153,7 +153,7 @@ export const RemotionRoot: React.FC = () => {
                     height={height}
                     defaultProps={{
                       scenes: trecho.scenes,
-                      transparent: false,
+                      transparent: true,
                     }}
                   />
 

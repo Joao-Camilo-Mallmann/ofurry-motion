@@ -9,6 +9,7 @@ out/
 *.mp4
 *.mkv
 *.webm
+*.mov
 
 # Production & Build outputs
 dist/
