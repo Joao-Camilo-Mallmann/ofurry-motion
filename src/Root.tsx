@@ -14,11 +14,31 @@ import { SceneComposer } from './composition/SceneComposer';
 import { SceneSpec } from './director/schema';
 import { getAllVideos } from './videos/registry';
 import { VideoScene, isBespokeScene } from './videos/types';
+import { SHOTCRAFT_V1_PRESETS } from './presets';
 
 export interface MainVideoProps {
   scenes: VideoScene[];
   transparent?: boolean;
 }
+
+export const ShotcraftShowcaseSeries: React.FC<{ transparent?: boolean }> = ({ transparent = true }) => {
+  return (
+    <Series>
+      {SHOTCRAFT_V1_PRESETS.map((preset) => {
+        const Component = preset.component;
+        return (
+          <Series.Sequence
+            key={preset.id}
+            durationInFrames={preset.defaultDurationInFrames}
+            name={`${preset.category}: ${preset.name}`}
+          >
+            <Component transparent={transparent} />
+          </Series.Sequence>
+        );
+      })}
+    </Series>
+  );
+};
 
 export const MainVideo: React.FC<MainVideoProps> = ({ scenes, transparent = false }) => {
   return (
@@ -203,6 +223,36 @@ export const RemotionRoot: React.FC = () => {
               );
             })}
           </React.Fragment>
+        );
+      })}
+
+      {/* ========================================================= */}
+      {/* SHOTCRAFT V1 PRESETS SHOWCASE & COMPOSIÇÕES INDIVIDUAIS   */}
+      {/* ========================================================= */}
+      <Composition
+        id="Shotcraft-V1-Showcase"
+        component={ShotcraftShowcaseSeries as unknown as React.FC<Record<string, unknown>>}
+        durationInFrames={SHOTCRAFT_V1_PRESETS.reduce((acc, p) => acc + p.defaultDurationInFrames, 0)}
+        fps={OFurryTheme.layout.fps}
+        width={OFurryTheme.layout.width}
+        height={OFurryTheme.layout.height}
+        defaultProps={{ transparent: true }}
+      />
+
+      {SHOTCRAFT_V1_PRESETS.map((preset, idx) => {
+        const num = String(idx + 1).padStart(2, '0');
+        const compId = `Preset-${num}-${preset.id}`;
+        return (
+          <Composition
+            key={preset.id}
+            id={compId}
+            component={preset.component as unknown as React.FC<Record<string, unknown>>}
+            durationInFrames={preset.defaultDurationInFrames}
+            fps={OFurryTheme.layout.fps}
+            width={OFurryTheme.layout.width}
+            height={OFurryTheme.layout.height}
+            defaultProps={{ transparent: true }}
+          />
         );
       })}
     </>

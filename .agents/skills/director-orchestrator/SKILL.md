@@ -216,8 +216,10 @@ Antes de gerar qualquer linha de código TSX, apresente a proposta visual no for
 #### Shot
 [Descrição cinematográfica do enquadramento — ex: Plano médio com câmera 2.5D e deslocamento horizontal]
 
-#### Câmera (Video Shotcraft)
-[Receita do Shotcraft: push-in, crash-zoom, tilt 2.5D, parallax drift, orbit sutil]
+#### Câmera & Preset Shotcraft (Video Shotcraft)
+- Preset Shotcraft: `[ID exato de um dos 31 presets da V1 — ex: cel-flash-stomp | basic-3d-scene | title-demote-to-label | pop-burst-confirm | bottom-push-stack-wipe]`
+- Movimento de Câmera: [Receita do Shotcraft: push-in, crash-zoom, tilt 2.5D, parallax drift, orbit sutil]
+- Preview em Vídeo: `public/presets/videos/[preset-id].mp4` (para validação visual)
 
 #### Motion (Motion Design)
 [Física de damped spring, timing 0-15f punch, 15-final hold com micro-drift, zero wobble senoidal]
@@ -245,6 +247,50 @@ Antes de gerar qualquer linha de código TSX, apresente a proposta visual no for
 
 > [!IMPORTANT]
 > **Aguarde a validação do usuário antes de criar os arquivos `.tsx` ou executar renderizações.**
+
+---
+
+## 8.1. CATÁLOGO OFICIAL DOS 31 PRESETS DO VIDEO-SHOTCRAFT (V1)
+
+O Diretor Orquestrador deve selecionar obrigatoriamente um destes **31 presets cinematográficos pré-implementados e auditados** para nortear a cinematografia e o código de cada tomada em `concept.md` e em `scenes/`:
+
+| Preset ID | Categoria | Arquétipo OFurry | Papel Narrativo & Metáfora | Preview em Vídeo |
+|---|---|---|---|---|
+| `basic-3d-scene` | Câmera | A (Blueprint) | Voo de câmera 2.5D conectando premissas de contrato no espaço vazio | `public/presets/videos/basic-3d-scene.mp4` |
+| `cursor-flyover` | Câmera | A (Blueprint) | Câmera 2.5D rasante com cursor neon inspecionando pontos de taxa/contrato | `public/presets/videos/cursor-flyover.mp4` |
+| `blur-slide` | Tipografia | C (Crash Slam) | Revelação suave com blur progressivo e subida de 1 a 3 palavras massivas | `public/presets/videos/blur-slide.mp4` |
+| `brace-expand` | Tipografia | C (Crash Slam) | Chaves `{}` monumentais se abrem em cortina revelando o termo central | `public/presets/videos/brace-expand.mp4` |
+| `cel-flash-stomp` | Tipografia | C (Crash Slam) | Três palavras de soco carimbadas com flashes neon de alto contraste | `public/presets/videos/cel-flash-stomp.mp4` |
+| `countdown-arc-scatter` | Tipografia | B (Layered) | Varredura de números em arco que freia bruscamente no número hero | `public/presets/videos/countdown-arc-scatter.mp4` |
+| `glitch-cycle` | Tipografia | C (Crash Slam) | Ciclo rápido de glitches denunciando distorção de mercado até cravar a verdade | `public/presets/videos/glitch-cycle.mp4` |
+| `paper-title-card` | Tipografia | A (Blueprint) | Cartão com carimbo letterpress editorial e grifo neon sólido | `public/presets/videos/paper-title-card.mp4` |
+| `text-as-mask` | Tipografia | C (Crash Slam) | Tipografia massiva recortada como máscara com zoom 2.5D atravessando a letra | `public/presets/videos/text-as-mask.mp4` |
+| `title-demote-to-label` | Tipografia | B (Layered) | Título massivo encolhe e vira micro-tag enquanto o número 240px emerge | `public/presets/videos/title-demote-to-label.mp4` |
+| `split-text-stagger` | Tipografia | C (Crash Slam) | Mask reveal da baseline por caractere individual saindo do chão | `public/presets/videos/split-text-stagger.mp4` |
+| `scramble-decode` | Tipografia | A (Blueprint) | Decodificador alfanumérico rápido travando caractere por caractere com flash | `public/presets/videos/scramble-decode.mp4` |
+| `word-relay-filmstrip` | Tipografia | D (Split Tensão) | Split 50/50 com sujeito estático e carretel vertical de verbos de impacto | `public/presets/videos/word-relay-filmstrip.mp4` |
+| `counter-confetti` | Métricas | B (Layered) | Contador de alta velocidade que dispara choque e faíscas neon no lock-in | `public/presets/videos/counter-confetti.mp4` |
+| `ring-diagram-annotation-reveal` | Métricas | A (Blueprint) | Anéis concêntricos SVG de partição de capital deslizando e abrindo anotações | `public/presets/videos/ring-diagram-annotation-reveal.mp4` |
+| `timeline-travel` | Métricas | A (Blueprint) | Câmera horizontal percorrendo anos de contrato com freadas em marcos críticos | `public/presets/videos/timeline-travel.mp4` |
+| `value-stagger-gradient` | Métricas | B (Layered) | Cascata de barras em gradiente demonstrando erosão e degradação de retorno | `public/presets/videos/value-stagger-gradient.mp4` |
+| `beat-step-list-theme-cycle` | Efeitos | D (Split Tensão) | Avanço vertical ritmado no beat com captura em tarja neon sólida e squash pop | `public/presets/videos/beat-step-list-theme-cycle.mp4` |
+| `bezier-source-converge-merge` | Efeitos | A (Blueprint) | Fontes de capital convergem por curvas neon num único ralo financeiro | `public/presets/videos/bezier-source-converge-merge.mp4` |
+| `panel-to-canvas` | Efeitos | B (Layered) | Linha de contrato se desprende e materializa um bloco de alerta físico 2.5D | `public/presets/videos/panel-to-canvas.mp4` |
+| `card-stack` | Efeitos | B (Layered) | Pilha de opções de ativos pop in e se abrem em leque 3D com destaque no COE | `public/presets/videos/card-stack.mp4` |
+| `pop-burst-confirm` | Efeitos | B (Layered) | Ícone monumental sofre compressão física e estoura com anel de choque e partículas | `public/presets/videos/pop-burst-confirm.mp4` |
+| `list-reveal` | Efeitos | A (Blueprint) | Ficha técnica Blueprint com linhas surgindo em scale outBack e micro-drift contínuo | `public/presets/videos/list-reveal.mp4` |
+| `product-card-progressive-assemble` | Efeitos | A (Blueprint) | Ficha de produto com redaction de ganho prometido e revelação do ganho real | `public/presets/videos/product-card-progressive-assemble.mp4` |
+| `radial-ripple-phone-chips` | Efeitos | B (Layered) | Ondas acústicas neon concêntricas disparando tags de alerta lateral | `public/presets/videos/radial-ripple-phone-chips.mp4` |
+| `research-card-stack-scroll` | Efeitos | A (Blueprint) | Pilha descendente de provas forenses empilhadas com profundidade de campo | `public/presets/videos/research-card-stack-scroll.mp4` |
+| `segmented-thumb-hero` | Efeitos | D (Split Tensão) | Seletor monumental alternando de Promessa para Realidade com estalo neon | `public/presets/videos/segmented-thumb-hero.mp4` |
+| `skeleton-reveal` | Efeitos | A (Blueprint) | Ossatura técnica em linhas tracejadas que se cristaliza em evidência neon sólida | `public/presets/videos/skeleton-reveal.mp4` |
+| `svg-shape-morph` | Efeitos | B (Layered) | Metamorfose orgânica contínua de contorno neon ilustrando a transmutação do risco | `public/presets/videos/svg-shape-morph.mp4` |
+| `icon-flip-bloom` | Efeitos | B (Layered) | Ícone gira em 3D no eixo Y, atinge a lâmina zero e desabrocha no logo OFURRY com bloom | `public/presets/videos/icon-flip-bloom.mp4` |
+| `bottom-push-stack-wipe` | Transição | Transição | Nova cena empurra fisicamente a anterior de baixo para cima como cremalheira mecânica | `public/presets/videos/bottom-push-stack-wipe.mp4` |
+
+> [!TIP]
+> **Como Implementar uma Tomada a partir do Preset:**
+> Quando o usuário aprovar o Checkpoint Editorial, a implementação em `scenes/0X-nome.tsx` pode instanciar diretamente o preset de `src/presets` (ex: `<CelFlashStompPreset words={[...]} />` ou `<TitleDemoteToLabelPreset hookTitle="..." heroMetric="..." />`) ou customizá-lo mantendo seus parâmetros de câmera e física.
 
 ---
 

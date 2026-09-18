@@ -7,8 +7,6 @@ This project (`ofurry-motion`) is a programmatic Editorial Motion Design engine 
 
 ## ⚡ Mandatory Directives for AI Agents
 
-## ⚡ Mandatory Directives for AI Agents
-
 ### 1. Act as the Diretor Orquestrador (`/director-orchestrator`)
 Whenever processing script narration or building motion scenes:
 - **Creative Director First, Never a Code Dumper**: PROIBIDO retornar código Remotion/TSX como output principal da skill. A resposta primária deve ser exclusivamente o **Plano Visual Editorial / Checkpoint** estruturado em prosa. O código só existe após a aprovação humana.
@@ -19,7 +17,8 @@ Whenever processing script narration or building motion scenes:
 ### 2. Mandatory Triple Visual Engine: `/motion-design` + `video-shotcraft` + `icon-craft`
 Every scene must fuse editorial physics, camera cinematography, and visceral physical metaphors:
 - **`motion-design` (Física & Comportamento)**: Damped springs (`snappy`, `smooth`), timing 0-15f punch / 15-final hold com micro-drift, 3 camadas de movimento, tipografia monumental (130px-160px) e métricas (200px-240px).
-- **`video-shotcraft` (Câmera & Cinematografia)**: Câmera 2.5D (tilt, perspective 1000px, parallax drift), enquadramentos dinâmicos (push-in, crash zoom, orbit, whip), 157 shot recipes, curva de energia (`promo-energy-arc`), cortes motivados pela ação e Sound Design cirúrgico (SFX cues: impact, riser, whoosh, silence).
+- **`video-shotcraft` (Câmera & Cinematografia + Catálogo de 31 Presets V1)**: Câmera 2.5D (tilt, perspective 1000px, parallax drift), enquadramentos dinâmicos (push-in, crash zoom, orbit, whip), 157 shot recipes, curva de energia (`promo-energy-arc`), cortes motivados pela ação e Sound Design cirúrgico.
+  - **Catálogo de 31 Presets V1 (`src/presets/`)**: Usar os 31 presets auditados (`basic-3d-scene`, `cel-flash-stomp`, `countdown-arc-scatter`, `title-demote-to-label`, etc.) com preview em vídeo em `public/presets/videos/[preset-id].mp4` e composições isoladas `Preset-[XX]-[id]` no Studio.
 - **`icon-craft` (Metáforas Físicas & Ícones)**: Catálogo de 55 ícones físicos (`public/icons/`). Renderização com alto contraste sobre canal Alpha via `<AssetIcon />`: inversão de pretos para branco puro (`variant="white"`), colorização neon `#FF9900` (`variant="orange"`), ou cores nativas (`variant="original"`). Proibido ícones como mini-badges ou em cards SaaS; sempre como 1 metáfora dominante (140px-300px) ou âncora rígida.
 - **Core Question**: *"Qual plano cinematográfico e metáfora física melhor comunicam esta frase?"* (e não *"Qual layout colocar?"*).
 
